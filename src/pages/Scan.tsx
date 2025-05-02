@@ -1,7 +1,6 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { getPetById, createScanEvent } from "@/lib/store";
 import { Pet } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -10,6 +9,8 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import Layout from "@/components/Layout";
 import { PawPrint, Send } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { mapSupabasePet } from "@/types";
 
 const Scan = () => {
   const { scanId } = useParams<{ scanId: string }>();
@@ -26,15 +27,27 @@ const Scan = () => {
       setIsLoading(true);
       
       if (scanId) {
-        // In a real app, we would make an API call to get pet info from the scan ID
-        // For this demo, we'll search all pets for matching QR code URL
-        const allPets = localStorage.getItem("petpal_pets");
-        if (allPets) {
-          const parsedPets: Pet[] = JSON.parse(allPets);
-          const foundPet = parsedPets.find((p) => p.qrCodeUrl === scanId);
-          if (foundPet) {
-            setPet(foundPet);
+        try {
+          console.log("Looking for pet with ID:", scanId);
+          // Directly fetch the pet from Supabase using the scanId which is the pet ID
+          const { data, error } = await supabase
+            .from('pets')
+            .select('*')
+            .eq('id', scanId)
+            .maybeSingle();
+            
+          if (error) {
+            console.error("Error fetching pet:", error);
+            toast.error("Failed to load pet information");
+          } else if (data) {
+            const mappedPet = mapSupabasePet(data);
+            console.log("Found pet:", mappedPet.name);
+            setPet(mappedPet);
+          } else {
+            console.log("No pet found with ID:", scanId);
           }
+        } catch (err) {
+          console.error("Error loading pet data:", err);
         }
       }
       
@@ -69,17 +82,21 @@ const Scan = () => {
     setIsSubmitting(true);
     
     try {
-      // Create a scan event
-      createScanEvent({
-        petId: pet.id,
-        createdAt: new Date().toISOString(),
-        location: location,
-        latitude: location?.lat,
-        longitude: location?.lng,
-        address: location?.address,
-        scannerContact: contactInfo || undefined,
-        message: message || undefined
-      });
+      // Create a scan event in Supabase
+      const { error } = await supabase
+        .from('scan_events')
+        .insert({
+          pet_id: pet.id,
+          lat: location?.lat,
+          lng: location?.lng,
+          address: location?.address,
+          scanner_contact: contactInfo || null,
+          message: message || null
+        });
+        
+      if (error) {
+        throw error;
+      }
       
       toast.success("Alert sent to the pet owner!");
       setSubmitted(true);
