@@ -7,6 +7,7 @@ import { Pet } from "@/types";
 import { Button } from "@/components/ui/button";
 import QRCodeGenerator from "@/components/QRCodeGenerator";
 import Layout from "@/components/Layout";
+import { toast } from "sonner";
 
 const QRCodePage = () => {
   const { petId } = useParams<{ petId: string }>();
