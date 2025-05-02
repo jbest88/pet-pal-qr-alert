@@ -4,8 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PawPrint, QrCode, Bell, Check } from "lucide-react";
 import Layout from "@/components/Layout";
+import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const Index = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  
   const features = [
     {
       icon: <QrCode className="h-8 w-8 text-primary" />,
@@ -47,6 +52,14 @@ const Index = () => {
     }
   ];
 
+  const handleGetStarted = () => {
+    if (user) {
+      navigate("/dashboard");
+    } else {
+      navigate("/login");
+    }
+  };
+
   return (
     <Layout>
       {/* Hero Section */}
@@ -59,8 +72,8 @@ const Index = () => {
             The fastest way to reunite with your lost pets. Easy to use QR codes that alert you immediately when scanned.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <Button asChild size="lg" className="text-lg px-8">
-              <Link to="/register">Get Started</Link>
+            <Button size="lg" className="text-lg px-8" onClick={handleGetStarted}>
+              Get Started
             </Button>
             <Button asChild size="lg" variant="outline" className="text-lg px-8">
               <Link to="/how-it-works">How It Works</Link>
@@ -111,8 +124,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Testimonial Section (to be added with real user testimonials) */}
-
       {/* CTA Section */}
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4 text-center">
@@ -122,8 +133,8 @@ const Index = () => {
           <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
             Don't wait until your pet goes missing. Create an account now and get your pet's QR code ready.
           </p>
-          <Button asChild size="lg" className="text-lg px-8">
-            <Link to="/register">Create Your Free Account</Link>
+          <Button size="lg" className="text-lg px-8" onClick={handleGetStarted}>
+            {user ? "Go to Dashboard" : "Create Your Free Account"}
           </Button>
         </div>
       </section>
