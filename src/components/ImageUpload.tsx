@@ -35,23 +35,28 @@ const ImageUpload = ({ onImageUploaded, currentImageUrl, petId }: ImageUploadPro
     const objectUrl = URL.createObjectURL(file);
     setPreview(objectUrl);
     
-    // Don't upload automatically - wait for form submission
+    // Upload automatically after selecting the file
+    uploadImage(file).then(url => {
+      if (url) {
+        onImageUploaded(url);
+      }
+    });
   };
 
-  const uploadImage = async (): Promise<string | null> => {
-    if (!user || !imageFile) return null;
+  const uploadImage = async (file: File): Promise<string | null> => {
+    if (!user) return null;
     
     try {
       setUploading(true);
       
       // Create a unique file path including the user ID and timestamp
-      const fileExt = imageFile.name.split('.').pop();
+      const fileExt = file.name.split('.').pop();
       const filePath = `${user.id}/${petId || 'new'}/${Date.now()}.${fileExt}`;
       
       // Upload the image to Supabase storage
       const { data, error } = await supabase.storage
         .from('pet_images')
-        .upload(filePath, imageFile);
+        .upload(filePath, file);
         
       if (error) {
         throw error;
@@ -62,6 +67,7 @@ const ImageUpload = ({ onImageUploaded, currentImageUrl, petId }: ImageUploadPro
         .from('pet_images')
         .getPublicUrl(data.path);
         
+      toast.success('Image uploaded successfully');
       return publicUrl;
     } catch (error: any) {
       console.error('Error uploading image:', error);
@@ -70,17 +76,6 @@ const ImageUpload = ({ onImageUploaded, currentImageUrl, petId }: ImageUploadPro
     } finally {
       setUploading(false);
     }
-  };
-
-  const handleUpload = async () => {
-    if (!imageFile) return null;
-    
-    const url = await uploadImage();
-    if (url) {
-      onImageUploaded(url);
-      toast.success('Image uploaded successfully');
-    }
-    return url;
   };
   
   const handleRemoveImage = () => {
@@ -131,18 +126,6 @@ const ImageUpload = ({ onImageUploaded, currentImageUrl, petId }: ImageUploadPro
         onChange={handleFileChange}
         className="sr-only"
       />
-      
-      {imageFile && !uploading && (
-        <Button 
-          type="button" 
-          variant="outline" 
-          className="w-full text-sm"
-          onClick={handleUpload}
-        >
-          <Upload className="mr-2 h-4 w-4" />
-          Upload Image
-        </Button>
-      )}
       
       {uploading && (
         <div className="w-full flex justify-center items-center py-2">

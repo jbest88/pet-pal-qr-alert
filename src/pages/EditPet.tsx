@@ -116,6 +116,7 @@ const EditPet = () => {
   };
 
   const handleImageUploaded = (url: string) => {
+    console.log("Image URL updated:", url);
     setPet({ ...pet, imageUrl: url });
   };
   

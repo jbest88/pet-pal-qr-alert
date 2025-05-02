@@ -67,6 +67,7 @@ const PetForm = () => {
   };
 
   const handleImageUploaded = (url: string) => {
+    console.log("Image uploaded, URL:", url);
     setImageUrl(url);
   };
 
