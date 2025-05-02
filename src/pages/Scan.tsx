@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import Layout from "@/components/Layout";
-import { PawPrint, Send, AlertTriangle } from "lucide-react";
+import { PawPrint, Send, AlertTriangle, Bug } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { mapSupabasePet } from "@/types";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
@@ -23,6 +23,7 @@ const Scan = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [location, setLocation] = useState<{ lat: number; lng: number; address?: string } | null>(null);
+  const [rawData, setRawData] = useState<any>(null); // For debugging
 
   useEffect(() => {
     const loadPetData = async () => {
@@ -39,19 +40,30 @@ const Scan = () => {
         
         console.log("🔍 Looking for pet with ID:", scanId);
         
+        // First, check if the scanId is valid UUID format
+        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+        if (!uuidRegex.test(scanId)) {
+          console.error("Invalid UUID format:", scanId);
+          setError(`Invalid ID format: ${scanId}`);
+          setIsLoading(false);
+          return;
+        }
+        
         // Directly fetch the pet from Supabase using the scanId which is the pet ID
-        const { data, error } = await supabase
+        const response = await supabase
           .from('pets')
           .select('*')
           .eq('id', scanId)
           .maybeSingle();
           
-        if (error) {
-          console.error("❌ Error fetching pet:", error);
-          setError(`Failed to load pet information: ${error.message}`);
+        setRawData(response); // Store raw response for debugging
+        
+        if (response.error) {
+          console.error("❌ Error fetching pet:", response.error);
+          setError(`Database error: ${response.error.message}`);
           toast.error("Failed to load pet information");
-        } else if (data) {
-          const mappedPet = mapSupabasePet(data);
+        } else if (response.data) {
+          const mappedPet = mapSupabasePet(response.data);
           console.log("✅ Found pet:", mappedPet);
           setPet(mappedPet);
         } else {
@@ -134,6 +146,46 @@ const Scan = () => {
     }
   };
 
+  const retryFetch = () => {
+    setError(null);
+    // Re-run the effect
+    const loadPetData = async () => {
+      setIsLoading(true);
+      
+      try {
+        console.log("🔄 Retrying fetch for pet with ID:", scanId);
+        
+        // Direct fetch from Supabase with no caching
+        const { data, error } = await supabase
+          .from('pets')
+          .select('*')
+          .eq('id', scanId)
+          .maybeSingle();
+          
+        if (error) {
+          console.error("❌ Retry error fetching pet:", error);
+          setError(`Database error during retry: ${error.message}`);
+        } else if (data) {
+          const mappedPet = mapSupabasePet(data);
+          console.log("✅ Retry successful - Found pet:", mappedPet);
+          setPet(mappedPet);
+          setError(null);
+        } else {
+          console.log("❓ Retry - No pet found with ID:", scanId);
+          setError(`Retry failed - No pet found with ID: ${scanId}`);
+        }
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : String(err);
+        console.error("❌ Error during retry:", err);
+        setError(`Error during retry: ${errorMessage}`);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    loadPetData();
+  };
+
   if (isLoading) {
     return (
       <Layout>
@@ -141,6 +193,7 @@ const Scan = () => {
           <div className="text-center">
             <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
             <p className="text-gray-600">Looking for pet information...</p>
+            <p className="text-xs text-gray-500 mt-2">Scan ID: {scanId || "None"}</p>
           </div>
         </div>
       </Layout>
@@ -164,6 +217,24 @@ const Scan = () => {
               <AlertDescription className="mt-1 break-words">{error}</AlertDescription>
             </Alert>
           )}
+          
+          <div className="space-y-4">
+            {rawData && (
+              <div className="bg-gray-50 p-4 rounded-md text-left text-xs overflow-auto max-h-40">
+                <p className="font-semibold mb-1">Raw Response:</p>
+                <pre>{JSON.stringify(rawData, null, 2)}</pre>
+              </div>
+            )}
+            
+            <Button onClick={retryFetch} className="w-full">
+              Try Again
+            </Button>
+            
+            <div className="pt-4 text-sm text-gray-500">
+              <p>Scan ID: {scanId || "None"}</p>
+              <p className="mt-1">If this error persists, please contact support.</p>
+            </div>
+          </div>
         </div>
       </Layout>
     );

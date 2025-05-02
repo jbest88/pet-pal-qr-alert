@@ -30,12 +30,13 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({ data, petName }) => {
         setLoading(true);
         setError(null);
         
-        // Force a clean, absolute URL for the QR code
+        // Ensure we're using a complete, absolute URL for the QR code
         const baseUrl = window.location.origin;
         const fullUrl = `${baseUrl}/scan/${data}`;
         
+        console.log(`🔍 QR Code pet ID: ${data}`);
         console.log("🔄 Generating QR code for URL:", fullUrl);
-        setDebugInfo(`QR code points to: ${fullUrl}`);
+        setDebugInfo(`QR code points to: ${fullUrl} (Pet ID: ${data})`);
         
         const url = await QRCode.toDataURL(fullUrl, {
           width: 300,
@@ -88,6 +89,7 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({ data, petName }) => {
   const testQRCode = () => {
     const baseUrl = window.location.origin;
     const fullUrl = `${baseUrl}/scan/${data}`;
+    console.log("🧪 Testing QR code with URL:", fullUrl);
     window.open(fullUrl, '_blank');
     toast.success("Opening scan page in new tab for testing");
   };
