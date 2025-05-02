@@ -8,14 +8,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import Layout from "@/components/Layout";
-import { PawPrint, Send } from "lucide-react";
+import { PawPrint, Send, AlertTriangle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { mapSupabasePet } from "@/types";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 
 const Scan = () => {
   const { scanId } = useParams<{ scanId: string }>();
   const [pet, setPet] = useState<Pet | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [contactInfo, setContactInfo] = useState("");
   const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -25,37 +27,53 @@ const Scan = () => {
   useEffect(() => {
     const loadPetData = async () => {
       setIsLoading(true);
+      setError(null);
       
-      if (scanId) {
-        try {
-          console.log("Looking for pet with ID:", scanId);
-          // Directly fetch the pet from Supabase using the scanId which is the pet ID
-          const { data, error } = await supabase
-            .from('pets')
-            .select('*')
-            .eq('id', scanId)
-            .maybeSingle();
-            
-          if (error) {
-            console.error("Error fetching pet:", error);
-            toast.error("Failed to load pet information");
-          } else if (data) {
-            const mappedPet = mapSupabasePet(data);
-            console.log("Found pet:", mappedPet.name);
-            setPet(mappedPet);
-          } else {
-            console.log("No pet found with ID:", scanId);
-          }
-        } catch (err) {
-          console.error("Error loading pet data:", err);
+      try {
+        if (!scanId) {
+          console.error("No scan ID provided in URL parameters");
+          setError("Missing scan ID");
+          setIsLoading(false);
+          return;
         }
+        
+        console.log("🔍 Looking for pet with ID:", scanId);
+        
+        // Directly fetch the pet from Supabase using the scanId which is the pet ID
+        const { data, error } = await supabase
+          .from('pets')
+          .select('*')
+          .eq('id', scanId)
+          .maybeSingle();
+          
+        if (error) {
+          console.error("❌ Error fetching pet:", error);
+          setError(`Failed to load pet information: ${error.message}`);
+          toast.error("Failed to load pet information");
+        } else if (data) {
+          const mappedPet = mapSupabasePet(data);
+          console.log("✅ Found pet:", mappedPet);
+          setPet(mappedPet);
+        } else {
+          console.log("❓ No pet found with ID:", scanId);
+          setError(`No pet found with ID: ${scanId}`);
+        }
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : String(err);
+        console.error("❌ Error loading pet data:", err);
+        setError(`Error loading pet data: ${errorMessage}`);
+      } finally {
+        setIsLoading(false);
       }
-      
-      // Get user's location if available
+    };
+
+    // Get user's location if available
+    const getLocation = () => {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
           (position) => {
             const { latitude, longitude } = position.coords;
+            console.log("📍 Got user location:", { latitude, longitude });
             setLocation({
               lat: latitude,
               lng: longitude,
@@ -63,25 +81,31 @@ const Scan = () => {
             });
           },
           (error) => {
-            console.error("Error getting location:", error);
+            console.error("❌ Error getting location:", error);
           }
         );
+      } else {
+        console.log("⚠️ Geolocation not supported by this browser");
       }
-      
-      setIsLoading(false);
     };
 
     loadPetData();
+    getLocation();
   }, [scanId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!pet) return;
+    if (!pet) {
+      toast.error("No pet information available");
+      return;
+    }
     
     setIsSubmitting(true);
     
     try {
+      console.log("📝 Submitting scan event for pet:", pet.id);
+      
       // Create a scan event in Supabase
       const { error } = await supabase
         .from('scan_events')
@@ -95,13 +119,15 @@ const Scan = () => {
         });
         
       if (error) {
+        console.error("❌ Error creating scan event:", error);
         throw error;
       }
       
+      console.log("✅ Scan event created successfully");
       toast.success("Alert sent to the pet owner!");
       setSubmitted(true);
     } catch (error) {
-      console.error("Error submitting form:", error);
+      console.error("❌ Error submitting form:", error);
       toast.error("Failed to send alert. Please try again.");
     } finally {
       setIsSubmitting(false);
@@ -112,13 +138,16 @@ const Scan = () => {
     return (
       <Layout>
         <div className="container mx-auto px-4 py-16 flex justify-center items-center">
-          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+          <div className="text-center">
+            <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-gray-600">Looking for pet information...</p>
+          </div>
         </div>
       </Layout>
     );
   }
 
-  if (!pet) {
+  if (error || !pet) {
     return (
       <Layout>
         <div className="container mx-auto px-4 py-16 max-w-md text-center">
@@ -127,6 +156,14 @@ const Scan = () => {
           <p className="text-gray-600 mb-8">
             Sorry, we couldn't find a pet associated with this QR code. It may have been removed or the code is invalid.
           </p>
+          
+          {error && (
+            <Alert variant="destructive" className="mb-6 text-left">
+              <AlertTriangle className="h-4 w-4" />
+              <AlertTitle>Debug Information</AlertTitle>
+              <AlertDescription className="mt-1 break-words">{error}</AlertDescription>
+            </Alert>
+          )}
         </div>
       </Layout>
     );

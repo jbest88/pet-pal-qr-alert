@@ -3,6 +3,8 @@ import React, { useEffect, useState } from "react";
 import QRCode from "qrcode";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import { AlertTriangle } from "lucide-react";
 
 interface QRCodeGeneratorProps {
   data: string;
@@ -13,6 +15,7 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({ data, petName }) => {
   const [qrUrl, setQrUrl] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [debugInfo, setDebugInfo] = useState<string>("");
 
   useEffect(() => {
     const generateQRCode = async () => {
@@ -31,7 +34,8 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({ data, petName }) => {
         const baseUrl = window.location.origin;
         const fullUrl = `${baseUrl}/scan/${data}`;
         
-        console.log("Generating QR code for URL:", fullUrl);
+        console.log("🔄 Generating QR code for URL:", fullUrl);
+        setDebugInfo(`QR code points to: ${fullUrl}`);
         
         const url = await QRCode.toDataURL(fullUrl, {
           width: 300,
@@ -47,10 +51,11 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({ data, petName }) => {
         }
         
         setQrUrl(url);
-        console.log("QR code generated successfully");
+        console.log("✅ QR code generated successfully");
       } catch (err) {
-        console.error("Error generating QR code:", err);
-        setError("Failed to generate QR code");
+        const errorMessage = err instanceof Error ? err.message : String(err);
+        console.error("❌ Error generating QR code:", err);
+        setError(`Failed to generate QR code: ${errorMessage}`);
         toast.error("Failed to generate QR code");
       } finally {
         setLoading(false);
@@ -75,9 +80,16 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({ data, petName }) => {
       document.body.removeChild(link); // Clean up
       toast.success("QR Code downloaded!");
     } catch (err) {
-      console.error("Error downloading QR code:", err);
+      console.error("❌ Error downloading QR code:", err);
       toast.error("Failed to download QR code");
     }
+  };
+
+  const testQRCode = () => {
+    const baseUrl = window.location.origin;
+    const fullUrl = `${baseUrl}/scan/${data}`;
+    window.open(fullUrl, '_blank');
+    toast.success("Opening scan page in new tab for testing");
   };
 
   return (
@@ -100,16 +112,36 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({ data, petName }) => {
           Unable to generate QR code
         </div>
       )}
+
+      {debugInfo && (
+        <Alert className="max-w-xs text-xs bg-gray-50 border-gray-200">
+          <AlertTitle className="text-sm">QR Code Information</AlertTitle>
+          <AlertDescription className="break-words">{debugInfo}</AlertDescription>
+        </Alert>
+      )}
+
       <p className="text-sm text-gray-500 max-w-xs text-center">
         Print this QR code and attach it to {petName}'s collar. Anyone who finds {petName} can scan this to contact you.
       </p>
-      <Button 
-        onClick={downloadQRCode} 
-        disabled={loading || !qrUrl}
-        className="mt-4"
-      >
-        Download QR Code
-      </Button>
+      
+      <div className="flex flex-col sm:flex-row gap-2 w-full">
+        <Button 
+          onClick={downloadQRCode} 
+          disabled={loading || !qrUrl}
+          className="flex-1"
+        >
+          Download QR Code
+        </Button>
+        
+        <Button
+          onClick={testQRCode}
+          disabled={loading || !qrUrl}
+          variant="outline"
+          className="flex-1"
+        >
+          Test QR Code
+        </Button>
+      </div>
     </div>
   );
 };
