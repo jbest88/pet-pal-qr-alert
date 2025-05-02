@@ -1,15 +1,14 @@
-
 import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { getPetById, getScanEventsByPetId } from "@/lib/store";
-import { Pet, ScanEvent } from "@/types";
+import { Pet, ScanEvent, mapSupabasePet, mapSupabaseScanEvent } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { QrCode, MapPin, Clock } from "lucide-react";
 import Layout from "@/components/Layout";
 import { format } from "date-fns";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 const PetProfile = () => {
   const { petId } = useParams<{ petId: string }>();
@@ -30,19 +29,56 @@ const PetProfile = () => {
     // Only proceed if we have both user and petId
     if (petId && user && !loading) {
       console.log("Fetching pet data for:", petId);
-      const foundPet = getPetById(petId);
       
-      if (foundPet) {
-        setPet(foundPet);
-        const events = getScanEventsByPetId(petId);
-        setScanEvents(events);
-        console.log("Pet found:", foundPet.name);
-      } else {
-        console.log("Pet not found for id:", petId);
-        toast.error("Pet not found");
-        navigate("/dashboard");
-      }
-      setIsLoading(false);
+      const fetchPetAndScans = async () => {
+        try {
+          // Fetch pet data
+          const { data: petData, error: petError } = await supabase
+            .from('pets')
+            .select('*')
+            .eq('id', petId)
+            .maybeSingle();
+            
+          if (petError) {
+            console.error("Error fetching pet:", petError);
+            toast.error("Error loading pet data");
+            navigate("/dashboard");
+            return;
+          }
+          
+          if (!petData) {
+            console.log("Pet not found for id:", petId);
+            toast.error("Pet not found");
+            navigate("/dashboard");
+            return;
+          }
+          
+          const mappedPet = mapSupabasePet(petData);
+          setPet(mappedPet);
+          console.log("Pet found:", mappedPet.name);
+          
+          // Fetch scan events
+          const { data: scanData, error: scanError } = await supabase
+            .from('scan_events')
+            .select('*')
+            .eq('pet_id', petId)
+            .order('created_at', { ascending: false });
+            
+          if (scanError) {
+            console.error("Error fetching scan events:", scanError);
+          } else if (scanData) {
+            const mappedScans = scanData.map(mapSupabaseScanEvent);
+            setScanEvents(mappedScans);
+          }
+        } catch (err) {
+          console.error("Error in data fetch:", err);
+          toast.error("Failed to load data");
+        } finally {
+          setIsLoading(false);
+        }
+      };
+      
+      fetchPetAndScans();
     }
   }, [petId, user, loading, navigate]);
   

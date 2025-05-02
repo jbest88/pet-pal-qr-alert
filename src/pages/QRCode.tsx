@@ -2,12 +2,13 @@
 import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { getPetById } from "@/lib/store";
 import { Pet } from "@/types";
 import { Button } from "@/components/ui/button";
 import QRCodeGenerator from "@/components/QRCodeGenerator";
 import Layout from "@/components/Layout";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { mapSupabasePet } from "@/types";
 
 const QRCodePage = () => {
   const { petId } = useParams<{ petId: string }>();
@@ -27,17 +28,39 @@ const QRCodePage = () => {
     // Only proceed if we have both user and petId
     if (petId && user && !loading) {
       console.log("Fetching pet data for:", petId);
-      const foundPet = getPetById(petId);
+      const fetchPet = async () => {
+        try {
+          const { data, error } = await supabase
+            .from('pets')
+            .select('*')
+            .eq('id', petId)
+            .maybeSingle();
+          
+          if (error) {
+            console.error("Error fetching pet:", error);
+            toast.error("Error loading pet data");
+            navigate("/dashboard");
+            return;
+          }
+          
+          if (data) {
+            const mappedPet = mapSupabasePet(data);
+            console.log("Pet found:", mappedPet.name);
+            setPet(mappedPet);
+          } else {
+            console.log("Pet not found for id:", petId);
+            toast.error("Pet not found");
+            navigate("/dashboard");
+          }
+        } catch (err) {
+          console.error("Error in pet fetch:", err);
+          toast.error("Failed to load pet data");
+        } finally {
+          setIsLoading(false);
+        }
+      };
       
-      if (foundPet) {
-        setPet(foundPet);
-        console.log("Pet found:", foundPet.name);
-      } else {
-        console.log("Pet not found for id:", petId);
-        toast.error("Pet not found");
-        navigate("/dashboard");
-      }
-      setIsLoading(false);
+      fetchPet();
     }
   }, [petId, user, loading, navigate]);
   
