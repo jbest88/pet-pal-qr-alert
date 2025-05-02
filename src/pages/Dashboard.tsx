@@ -18,6 +18,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const Dashboard = () => {
   const { user, loading } = useAuth();
@@ -90,6 +91,10 @@ const Dashboard = () => {
       setPetToDelete(null);
     }
   };
+
+  const getPetInitials = (name) => {
+    return name.substring(0, 2).toUpperCase();
+  };
   
   if (loading || loadingPets) {
     return (
@@ -135,6 +140,21 @@ const Dashboard = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {pets.map((pet) => (
               <Card key={pet.id} className="overflow-hidden">
+                {pet.image_url ? (
+                  <div className="aspect-video w-full">
+                    <img 
+                      src={pet.image_url} 
+                      alt={pet.name}
+                      className="w-full h-full object-cover" 
+                    />
+                  </div>
+                ) : (
+                  <div className="aspect-video w-full bg-accent flex items-center justify-center">
+                    <Avatar className="h-24 w-24">
+                      <AvatarFallback>{getPetInitials(pet.name)}</AvatarFallback>
+                    </Avatar>
+                  </div>
+                )}
                 <CardHeader className="bg-primary/10">
                   <CardTitle>{pet.name}</CardTitle>
                 </CardHeader>

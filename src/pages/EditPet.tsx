@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import ImageUpload from "@/components/ImageUpload";
 
 const EditPet = () => {
   const { petId } = useParams();
@@ -22,7 +23,8 @@ const EditPet = () => {
     name: "",
     type: "dog",
     breed: "",
-    description: ""
+    description: "",
+    imageUrl: ""
   });
   
   useEffect(() => {
@@ -56,7 +58,8 @@ const EditPet = () => {
           name: data.name,
           type: data.type,
           breed: data.breed || "",
-          description: data.description || ""
+          description: data.description || "",
+          imageUrl: data.image_url || ""
         });
       } catch (error) {
         toast.error("An error occurred while loading pet information");
@@ -92,7 +95,8 @@ const EditPet = () => {
           name: pet.name.trim(),
           type: pet.type,
           breed: pet.breed.trim() || null,
-          description: pet.description.trim() || null
+          description: pet.description.trim() || null,
+          image_url: pet.imageUrl || null
         })
         .eq("id", petId)
         .eq("owner_id", user.id);
@@ -109,6 +113,10 @@ const EditPet = () => {
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const handleImageUploaded = (url: string) => {
+    setPet({ ...pet, imageUrl: url });
   };
   
   if (loading) {
@@ -130,6 +138,14 @@ const EditPet = () => {
         <h1 className="text-3xl font-bold mb-6 text-center">Edit Pet Profile</h1>
         
         <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-4">
+            <ImageUpload 
+              onImageUploaded={handleImageUploaded} 
+              currentImageUrl={pet.imageUrl}
+              petId={petId}
+            />
+          </div>
+          
           <div className="space-y-2">
             <Label htmlFor="name">Pet Name</Label>
             <Input

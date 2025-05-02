@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Pet } from "@/types";
 import { supabase } from "@/integrations/supabase/client";
+import ImageUpload from "./ImageUpload";
 
 const PetForm = () => {
   const { user } = useAuth();
@@ -18,6 +19,7 @@ const PetForm = () => {
   const [type, setType] = useState<"dog" | "cat" | "other">("dog");
   const [breed, setBreed] = useState("");
   const [description, setDescription] = useState("");
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -44,7 +46,8 @@ const PetForm = () => {
           name: name.trim(),
           type,
           breed: breed.trim() || null,
-          description: description.trim() || null
+          description: description.trim() || null,
+          image_url: imageUrl
         })
         .select()
         .single();
@@ -63,8 +66,16 @@ const PetForm = () => {
     }
   };
 
+  const handleImageUploaded = (url: string) => {
+    setImageUrl(url);
+  };
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="space-y-4">
+        <ImageUpload onImageUploaded={handleImageUploaded} />
+      </div>
+      
       <div className="space-y-2">
         <Label htmlFor="name">Pet Name</Label>
         <Input

@@ -1,3 +1,4 @@
+
 import { Database } from "@/integrations/supabase/types";
 
 // User Types
@@ -18,7 +19,7 @@ export interface Pet {
   breed?: string | null;
   description?: string | null;
   imageUrl?: string | null;
-  qrCodeUrl?: string | null; // Added missing property
+  qrCodeUrl?: string | null;
 }
 
 // Scan Event Types
@@ -31,8 +32,8 @@ export interface ScanEvent {
   scannerContact?: string | null;
   message?: string | null;
   createdAt: string;
-  timestamp?: number; // Added missing property
-  location?: { // Added missing property
+  timestamp?: number;
+  location?: {
     lat: number;
     lng: number;
     address?: string;
@@ -60,7 +61,7 @@ export function mapSupabasePet(pet: Database["public"]["Tables"]["pets"]["Row"])
     breed: pet.breed,
     description: pet.description,
     imageUrl: pet.image_url,
-    qrCodeUrl: `/pet/${pet.id}` // Adding qrCodeUrl property
+    qrCodeUrl: `/pet/${pet.id}`
   };
 }
 

@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -9,6 +10,7 @@ import Layout from "@/components/Layout";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 const PetProfile = () => {
   const { petId } = useParams<{ petId: string }>();
@@ -93,6 +95,10 @@ const PetProfile = () => {
     }
   };
 
+  const getPetInitials = (name: string) => {
+    return name.substring(0, 2).toUpperCase();
+  };
+
   if (loading || isLoading) {
     return (
       <Layout>
@@ -121,12 +127,21 @@ const PetProfile = () => {
     <Layout>
       <div className="container mx-auto px-4 py-8">
         <div className="mb-6 flex flex-col md:flex-row md:justify-between md:items-center">
-          <div>
-            <h1 className="text-3xl font-bold">{pet.name}'s Profile</h1>
-            <p className="text-gray-600">
-              {pet.type.charAt(0).toUpperCase() + pet.type.slice(1)}
-              {pet.breed ? ` · ${pet.breed}` : ""}
-            </p>
+          <div className="flex items-center gap-4">
+            <Avatar className="h-20 w-20 border-2 border-primary">
+              {pet.imageUrl ? (
+                <AvatarImage src={pet.imageUrl} alt={pet.name} />
+              ) : (
+                <AvatarFallback>{getPetInitials(pet.name)}</AvatarFallback>
+              )}
+            </Avatar>
+            <div>
+              <h1 className="text-3xl font-bold">{pet.name}'s Profile</h1>
+              <p className="text-gray-600">
+                {pet.type.charAt(0).toUpperCase() + pet.type.slice(1)}
+                {pet.breed ? ` · ${pet.breed}` : ""}
+              </p>
+            </div>
           </div>
           <div className="mt-4 md:mt-0 flex gap-3">
             <Button asChild variant="outline">
@@ -142,6 +157,18 @@ const PetProfile = () => {
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2">
+            {pet.imageUrl && (
+              <Card className="mb-6 overflow-hidden">
+                <div className="aspect-video w-full">
+                  <img 
+                    src={pet.imageUrl} 
+                    alt={pet.name} 
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              </Card>
+            )}
+            
             <Card>
               <CardHeader>
                 <CardTitle>About {pet.name}</CardTitle>
