@@ -12,6 +12,7 @@ import Register from "./pages/Register";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import AddPet from "./pages/AddPet";
+import EditPet from "./pages/EditPet";
 import PetProfile from "./pages/PetProfile";
 import QRCodePage from "./pages/QRCode";
 import Scan from "./pages/Scan";
@@ -34,6 +35,7 @@ const App = () => (
             <Route path="/login" element={<Login />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/add-pet" element={<AddPet />} />
+            <Route path="/edit-pet/:petId" element={<EditPet />} />
             <Route path="/pet/:petId" element={<PetProfile />} />
             <Route path="/qr-code/:petId" element={<QRCodePage />} />
             <Route path="/scan/:scanId" element={<Scan />} />

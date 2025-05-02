@@ -3,16 +3,28 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, Scan } from "lucide-react";
+import { PlusCircle, Scan, Pencil, Trash2 } from "lucide-react";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import Layout from "@/components/Layout";
+import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const Dashboard = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const [pets, setPets] = useState([]);
   const [loadingPets, setLoadingPets] = useState(false);
+  const [petToDelete, setPetToDelete] = useState(null);
   
   // Fetch pets when user is available
   useEffect(() => {
@@ -53,6 +65,31 @@ const Dashboard = () => {
       navigate("/login");
     }
   }, [user, loading, navigate]);
+  
+  const handleDeletePet = async () => {
+    if (!petToDelete) return;
+    
+    try {
+      const { error } = await supabase
+        .from('pets')
+        .delete()
+        .eq('id', petToDelete.id);
+        
+      if (error) {
+        toast.error(`Failed to delete ${petToDelete.name}: ${error.message}`);
+        return;
+      }
+      
+      // Remove pet from local state
+      setPets(pets.filter(pet => pet.id !== petToDelete.id));
+      toast.success(`${petToDelete.name} has been removed`);
+    } catch (error) {
+      toast.error(`An error occurred: ${error.message}`);
+    } finally {
+      // Reset petToDelete state
+      setPetToDelete(null);
+    }
+  };
   
   if (loading || loadingPets) {
     return (
@@ -110,19 +147,57 @@ const Dashboard = () => {
                     </p>
                   )}
                 </CardContent>
-                <CardFooter className="flex justify-between">
-                  <Link to={`/pet/${pet.id}`}>
-                    <Button variant="outline">View Profile</Button>
-                  </Link>
-                  <Link to={`/qr-code/${pet.id}`}>
-                    <Button>View QR Code</Button>
-                  </Link>
+                <CardFooter className="flex flex-wrap gap-2">
+                  <div className="flex gap-2 flex-1">
+                    <Link to={`/pet/${pet.id}`}>
+                      <Button variant="outline" size="sm">View</Button>
+                    </Link>
+                    <Link to={`/qr-code/${pet.id}`}>
+                      <Button size="sm">QR Code</Button>
+                    </Link>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="flex items-center"
+                      onClick={() => navigate(`/edit-pet/${pet.id}`)}
+                    >
+                      <Pencil className="h-4 w-4 mr-1" /> Edit
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="flex items-center text-destructive hover:text-destructive-foreground hover:bg-destructive"
+                      onClick={() => setPetToDelete(pet)}
+                    >
+                      <Trash2 className="h-4 w-4 mr-1" /> Delete
+                    </Button>
+                  </div>
                 </CardFooter>
               </Card>
             ))}
           </div>
         )}
       </div>
+      
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!petToDelete} onOpenChange={(open) => !open && setPetToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete {petToDelete?.name}</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete {petToDelete?.name}? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeletePet} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Layout>
   );
 };
