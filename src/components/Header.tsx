@@ -2,7 +2,7 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { PawPrint, Menu, X } from "lucide-react";
+import { PawPrint, Menu, X, LogIn } from "lucide-react";
 import { useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
@@ -29,9 +29,16 @@ const Header = () => {
           </Button>
         </>
       ) : (
-        <Link to="/register" onClick={closeMenu}>
-          <Button variant="secondary">Register</Button>
-        </Link>
+        <>
+          <Link to="/login" onClick={closeMenu}>
+            <Button variant="ghost">
+              <LogIn className="mr-2 h-4 w-4" /> Login
+            </Button>
+          </Link>
+          <Link to="/register" onClick={closeMenu}>
+            <Button variant="secondary">Register</Button>
+          </Link>
+        </>
       )}
     </>
   );

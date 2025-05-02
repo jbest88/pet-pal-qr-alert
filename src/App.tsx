@@ -9,6 +9,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 // Pages
 import Index from "./pages/Index";
 import Register from "./pages/Register";
+import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import AddPet from "./pages/AddPet";
 import PetProfile from "./pages/PetProfile";
@@ -30,6 +31,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/login" element={<Login />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/add-pet" element={<AddPet />} />
             <Route path="/pet/:petId" element={<PetProfile />} />
