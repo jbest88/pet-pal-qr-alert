@@ -14,6 +14,7 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [loginError, setLoginError] = useState("");
 
   // If user is already logged in, redirect to dashboard
   if (user) {
@@ -23,6 +24,7 @@ const Login = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoginError("");
     
     // Simple validation
     if (!email.trim()) {
@@ -40,10 +42,11 @@ const Login = () => {
     try {
       console.log("Attempting login with:", email);
       await login(email, password);
-      // login function will handle navigation and toast
-    } catch (error) {
+      // The redirect will happen in AuthContext if login is successful
+    } catch (error: any) {
       console.error("Login error:", error);
-      // Auth context already handles the error toast
+      setLoginError(error.message || "Login failed");
+      toast.error(error.message || "Login failed. Please check your credentials.");
     } finally {
       setIsSubmitting(false);
     }
@@ -86,6 +89,12 @@ const Login = () => {
               required
             />
           </div>
+          
+          {loginError && (
+            <div className="p-3 bg-red-50 text-red-700 rounded-md text-sm">
+              {loginError}
+            </div>
+          )}
           
           <Button 
             type="submit" 

@@ -55,6 +55,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }
         } else {
           console.log("No active session found");
+          setUser(null);
         }
       } catch (error) {
         console.error('Unexpected error during auth check:', error);
@@ -111,10 +112,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (error) throw error;
       
       toast.success("Successfully registered! Please check your email to verify your account.");
-      navigate("/dashboard");
+      
+      if (data.user) {
+        navigate("/dashboard");
+      }
     } catch (error: any) {
       console.error('Registration error:', error);
       toast.error(error.message || "Registration failed. Please try again.");
+      throw error;
     }
   };
 
@@ -129,11 +134,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (error) throw error;
 
       console.log("Login successful:", data.user?.email);
-      toast.success("Successfully logged in!");
-      navigate("/dashboard");
+      
+      // Fetch user profile after successful login
+      if (data.user) {
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', data.user.id)
+          .single();
+          
+        if (profileError) {
+          console.error('Error fetching user profile after login:', profileError);
+        } else if (profile) {
+          setUser(mapSupabaseProfile(profile));
+        }
+        
+        toast.success("Successfully logged in!");
+        navigate("/dashboard");
+      }
     } catch (error: any) {
       console.error('Login error:', error);
       toast.error(error.message || "Login failed. Please check your credentials.");
+      throw error;
     }
   };
 
