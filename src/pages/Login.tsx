@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -9,17 +9,36 @@ import { Key, LogIn } from "lucide-react";
 import { toast } from "sonner";
 
 const Login = () => {
-  const { login, user } = useAuth();
+  const { login, user, loading } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loginError, setLoginError] = useState("");
 
-  // If user is already logged in, redirect to dashboard
+  // Check if user is already logged in
+  useEffect(() => {
+    if (user && !loading) {
+      console.log("User already logged in, redirecting to dashboard");
+      navigate("/dashboard");
+    }
+  }, [user, loading, navigate]);
+
+  // If still loading, show loading state
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-12 max-w-md flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
+          <p className="mt-4 text-gray-600">Checking authentication...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // If user is already logged in, don't render the form
   if (user) {
-    navigate("/dashboard");
-    return null;
+    return null; // The useEffect will handle the redirect
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -42,11 +61,10 @@ const Login = () => {
     try {
       console.log("Attempting login with:", email);
       await login(email, password);
-      // The redirect will happen in AuthContext if login is successful
+      // The redirect will happen after successful login via AuthContext
     } catch (error: any) {
       console.error("Login error:", error);
       setLoginError(error.message || "Login failed");
-      toast.error(error.message || "Login failed. Please check your credentials.");
     } finally {
       setIsSubmitting(false);
     }
