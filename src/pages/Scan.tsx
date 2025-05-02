@@ -50,6 +50,7 @@ const Scan = () => {
         }
         
         // Directly fetch the pet from Supabase using the scanId which is the pet ID
+        // Using .select('*') to get all fields and not using .single() to avoid errors
         const response = await supabase
           .from('pets')
           .select('*')
