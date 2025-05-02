@@ -9,10 +9,11 @@ import { PawPrint } from "lucide-react";
 import { toast } from "sonner";
 
 const Register = () => {
-  const { login, user } = useAuth();
+  const { register, user } = useAuth();
   const navigate = useNavigate();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [phone, setPhone] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -22,7 +23,7 @@ const Register = () => {
     return null;
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // Simple validation
@@ -36,6 +37,11 @@ const Register = () => {
       return;
     }
     
+    if (!password.trim()) {
+      toast.error("Please enter a password");
+      return;
+    }
+    
     if (!phone.trim()) {
       toast.error("Please enter your phone number");
       return;
@@ -44,11 +50,12 @@ const Register = () => {
     setIsSubmitting(true);
     
     try {
-      login(email, name, phone);
-      // login function will handle the navigation
+      await register(email, password, name, phone);
+      // register function will handle navigation and toast
     } catch (error) {
       console.error("Registration error:", error);
-      toast.error("Registration failed. Please try again.");
+      // Auth context already handles the error toast
+    } finally {
       setIsSubmitting(false);
     }
   };
@@ -85,6 +92,19 @@ const Register = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter your email address"
+              disabled={isSubmitting}
+              required
+            />
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="password">Password</Label>
+            <Input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Create a secure password"
               disabled={isSubmitting}
               required
             />

@@ -9,7 +9,112 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      pets: {
+        Row: {
+          breed: string | null
+          created_at: string
+          description: string | null
+          id: string
+          image_url: string | null
+          name: string
+          owner_id: string
+          type: string
+        }
+        Insert: {
+          breed?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          name: string
+          owner_id: string
+          type: string
+        }
+        Update: {
+          breed?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          name?: string
+          owner_id?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pets_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          name: string
+          phone: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id: string
+          name: string
+          phone?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string
+          phone?: string | null
+        }
+        Relationships: []
+      }
+      scan_events: {
+        Row: {
+          address: string | null
+          created_at: string
+          id: string
+          lat: number | null
+          lng: number | null
+          message: string | null
+          pet_id: string
+          scanner_contact: string | null
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          id?: string
+          lat?: number | null
+          lng?: number | null
+          message?: string | null
+          pet_id: string
+          scanner_contact?: string | null
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          id?: string
+          lat?: number | null
+          lng?: number | null
+          message?: string | null
+          pet_id?: string
+          scanner_contact?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scan_events_pet_id_fkey"
+            columns: ["pet_id"]
+            isOneToOne: false
+            referencedRelation: "pets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
