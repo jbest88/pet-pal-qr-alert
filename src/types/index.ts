@@ -1,4 +1,3 @@
-
 import { Database } from "@/integrations/supabase/types";
 
 // User Types
@@ -7,6 +6,7 @@ export interface User {
   name: string;
   email: string;
   phone?: string | null;
+  created_at: string; // Added this property to fix TypeScript errors
 }
 
 // Pet Types
@@ -45,7 +45,8 @@ export function mapSupabaseProfile(profile: Database["public"]["Tables"]["profil
     id: profile.id,
     name: profile.name,
     email: profile.email,
-    phone: profile.phone
+    phone: profile.phone,
+    created_at: profile.created_at
   };
 }
 
