@@ -9,7 +9,7 @@ import { mapSupabaseProfile } from "@/types";
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  login: (email: string, password: string, name?: string, phone?: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   register: (email: string, password: string, name: string, phone: string) => Promise<void>;
 }
@@ -100,23 +100,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
 
       if (error) throw error;
-
-      if (data.user) {
-        // Create profile record
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .insert({
-            id: data.user.id,
-            email,
-            name,
-            phone
-          });
-
-        if (profileError) throw profileError;
-        
-        toast.success("Successfully registered! Please check your email to verify your account.");
-        navigate("/dashboard");
-      }
+      
+      toast.success("Successfully registered! Please check your email to verify your account.");
+      navigate("/dashboard");
     } catch (error: any) {
       console.error('Registration error:', error);
       toast.error(error.message || "Registration failed. Please try again.");
@@ -132,20 +118,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (error) throw error;
 
-      if (data.user) {
-        // Get profile information
-        const { data: profile, error: profileError } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', data.user.id)
-          .single();
-        
-        if (profileError) throw profileError;
-        
-        setUser(mapSupabaseProfile(profile));
-        toast.success("Successfully logged in!");
-        navigate("/dashboard");
-      }
+      toast.success("Successfully logged in!");
+      navigate("/dashboard");
     } catch (error: any) {
       console.error('Login error:', error);
       toast.error(error.message || "Login failed. Please check your credentials.");

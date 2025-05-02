@@ -1,7 +1,6 @@
 
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { createPet } from "@/lib/store";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -10,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Pet } from "@/types";
+import { supabase } from "@/integrations/supabase/client";
 
 const PetForm = () => {
   const { user } = useAuth();
@@ -20,7 +20,7 @@ const PetForm = () => {
   const [description, setDescription] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!user) {
@@ -36,26 +36,28 @@ const PetForm = () => {
     setIsSubmitting(true);
     
     try {
-      // Create unique URL for QR code
-      const uniqueId = crypto.randomUUID();
-      const qrCodeUrl = uniqueId;
+      // Create the pet in Supabase
+      const { data: pet, error } = await supabase
+        .from('pets')
+        .insert({
+          owner_id: user.id,
+          name: name.trim(),
+          type,
+          breed: breed.trim() || null,
+          description: description.trim() || null
+        })
+        .select()
+        .single();
       
-      // Create the pet profile
-      const petData: Omit<Pet, "id"> = {
-        ownerId: user.id,
-        name: name.trim(),
-        type,
-        breed: breed.trim() || undefined,
-        description: description.trim() || undefined,
-        qrCodeUrl
-      };
+      if (error) {
+        throw error;
+      }
       
-      const pet = createPet(petData);
-      toast.success(`${pet.name}'s profile created successfully!`);
+      toast.success(`${name}'s profile created successfully!`);
       navigate(`/pet/${pet.id}`);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error creating pet profile:", error);
-      toast.error("Failed to create pet profile. Please try again.");
+      toast.error(error.message || "Failed to create pet profile. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
