@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Pet } from "@/types";
@@ -24,6 +23,7 @@ const Scan = () => {
   const [submitted, setSubmitted] = useState(false);
   const [location, setLocation] = useState<{ lat: number; lng: number; address?: string } | null>(null);
   const [rawData, setRawData] = useState<any>(null); // For debugging
+  const [isLoadingAddress, setIsLoadingAddress] = useState(false);
 
   useEffect(() => {
     const loadPetData = async () => {
@@ -87,11 +87,15 @@ const Scan = () => {
           (position) => {
             const { latitude, longitude } = position.coords;
             console.log("📍 Got user location:", { latitude, longitude });
+            
+            // Set initial location with coordinates only
             setLocation({
               lat: latitude,
-              lng: longitude,
-              address: "Your current location" // In a real app, we would use reverse geocoding
+              lng: longitude
             });
+            
+            // Use reverse geocoding to get the address
+            fetchAddress(latitude, longitude);
           },
           (error) => {
             console.error("❌ Error getting location:", error);
@@ -101,10 +105,69 @@ const Scan = () => {
         console.log("⚠️ Geolocation not supported by this browser");
       }
     };
-
+    
     loadPetData();
     getLocation();
   }, [scanId]);
+  
+  // Function to fetch address from coordinates using OpenStreetMap Nominatim API
+  const fetchAddress = async (latitude: number, longitude: number) => {
+    setIsLoadingAddress(true);
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`,
+        {
+          headers: {
+            'User-Agent': 'PetPalQRAlert/1.0'  // Required by Nominatim usage policy
+          }
+        }
+      );
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch address');
+      }
+      
+      const data = await response.json();
+      console.log("📍 Reverse geocoding result:", data);
+      
+      // Format the address using available data
+      const addressParts = [];
+      
+      if (data.address) {
+        const addr = data.address;
+        // Format a readable address with available parts
+        if (addr.road) addressParts.push(addr.road);
+        if (addr.suburb) addressParts.push(addr.suburb);
+        if (addr.city || addr.town || addr.village) {
+          addressParts.push(addr.city || addr.town || addr.village);
+        }
+        if (addr.state) addressParts.push(addr.state);
+        if (addr.postcode) addressParts.push(addr.postcode);
+      }
+      
+      const formattedAddress = addressParts.length > 0 
+        ? addressParts.join(', ') 
+        : data.display_name || 'Unknown location';
+      
+      console.log("📍 Formatted address:", formattedAddress);
+      
+      // Update location with the resolved address
+      setLocation(prev => prev ? {
+        ...prev,
+        address: formattedAddress
+      } : null);
+      
+    } catch (error) {
+      console.error("❌ Error fetching address:", error);
+      // Keep the location object but mark address as failed
+      setLocation(prev => prev ? {
+        ...prev,
+        address: "Address lookup failed"
+      } : null);
+    } finally {
+      setIsLoadingAddress(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -126,7 +189,7 @@ const Scan = () => {
           pet_id: pet.id,
           lat: location?.lat,
           lng: location?.lng,
-          address: location?.address,
+          address: location?.address || null,
           scanner_contact: contactInfo || null,
           message: message || null
         });
@@ -242,6 +305,16 @@ const Scan = () => {
   }
 
   if (submitted) {
+    // Display information about the scan event that was submitted
+    const scanDateTime = new Date().toLocaleString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+      hour12: true
+    });
+    
     return (
       <Layout>
         <div className="container mx-auto px-4 py-16 max-w-md text-center">
@@ -252,6 +325,15 @@ const Scan = () => {
           <p className="text-gray-600 mb-6">
             Thank you for helping {pet.name} get home! The owner has been notified with your contact information and location.
           </p>
+          
+          <div className="bg-gray-50 p-4 rounded-lg mb-6 text-left">
+            <h2 className="font-medium mb-2">Scan Details:</h2>
+            <p className="text-sm text-gray-600">{scanDateTime}</p>
+            <p className="text-sm text-gray-600">
+              {location?.address || (isLoadingAddress ? "Determining address..." : "Location unavailable")}
+            </p>
+          </div>
+          
           <p className="font-medium">What should you do now?</p>
           <ul className="mt-4 text-left space-y-2">
             <li className="flex items-start">
