@@ -36,6 +36,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
         
         if (session?.user) {
+          console.log("Session found for user:", session.user.email);
           // Get user profile information
           const { data: profile, error: profileError } = await supabase
             .from('profiles')
@@ -49,8 +50,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }
           
           if (profile) {
+            console.log("Profile found:", profile);
             setUser(mapSupabaseProfile(profile));
           }
+        } else {
+          console.log("No active session found");
         }
       } catch (error) {
         console.error('Unexpected error during auth check:', error);
@@ -63,6 +67,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     
     // Set up auth state change listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log("Auth state change event:", event, "for user:", session?.user?.email || "no user");
+      
       if (event === 'SIGNED_IN' && session?.user) {
         // Get user profile information
         const { data: profile, error: profileError } = await supabase
@@ -72,9 +78,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           .single();
         
         if (!profileError && profile) {
+          console.log("Setting user from auth state change:", profile);
           setUser(mapSupabaseProfile(profile));
         }
       } else if (event === 'SIGNED_OUT') {
+        console.log("User signed out, clearing user state");
         setUser(null);
       }
     });
@@ -87,6 +95,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const register = async (email: string, password: string, name: string, phone: string) => {
     try {
+      console.log("Registering new user:", email);
       // Register user with Supabase auth
       const { data, error } = await supabase.auth.signUp({
         email,
@@ -111,6 +120,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (email: string, password: string) => {
     try {
+      console.log("Attempting to sign in:", email);
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password
@@ -118,6 +128,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (error) throw error;
 
+      console.log("Login successful:", data.user?.email);
       toast.success("Successfully logged in!");
       navigate("/dashboard");
     } catch (error: any) {
@@ -128,6 +139,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = async () => {
     try {
+      console.log("Logging out current user");
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
       

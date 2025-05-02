@@ -38,6 +38,7 @@ const Login = () => {
     setIsSubmitting(true);
     
     try {
+      console.log("Attempting login with:", email);
       await login(email, password);
       // login function will handle navigation and toast
     } catch (error) {
