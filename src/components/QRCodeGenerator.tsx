@@ -12,12 +12,22 @@ interface QRCodeGeneratorProps {
 const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({ data, petName }) => {
   const [qrUrl, setQrUrl] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const generateQRCode = async () => {
+      if (!data) {
+        console.error("No data provided for QR code generation");
+        setError("Missing data for QR code generation");
+        setLoading(false);
+        return;
+      }
+
       try {
         setLoading(true);
-        // Create the full URL for the QR code to scan - ensure it's an absolute URL
+        setError(null);
+        
+        // Force a clean, absolute URL for the QR code
         const baseUrl = window.location.origin;
         const fullUrl = `${baseUrl}/scan/${data}`;
         
@@ -31,22 +41,23 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({ data, petName }) => {
             light: "#FFFFFF",
           },
         });
+        
+        if (!url) {
+          throw new Error("QR code generation failed - empty URL returned");
+        }
+        
         setQrUrl(url);
         console.log("QR code generated successfully");
       } catch (err) {
         console.error("Error generating QR code:", err);
+        setError("Failed to generate QR code");
         toast.error("Failed to generate QR code");
       } finally {
         setLoading(false);
       }
     };
 
-    if (data) {
-      generateQRCode();
-    } else {
-      console.error("No data provided for QR code generation");
-      setLoading(false);
-    }
+    generateQRCode();
   }, [data]);
 
   const downloadQRCode = () => {
@@ -55,11 +66,18 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({ data, petName }) => {
       return;
     }
     
-    const link = document.createElement("a");
-    link.download = `${petName.toLowerCase().replace(/\s+/g, "-")}-qrcode.png`;
-    link.href = qrUrl;
-    link.click();
-    toast.success("QR Code downloaded!");
+    try {
+      const link = document.createElement("a");
+      link.download = `${petName.toLowerCase().replace(/\s+/g, "-")}-qrcode.png`;
+      link.href = qrUrl;
+      document.body.appendChild(link); // Append to body (important for Firefox)
+      link.click();
+      document.body.removeChild(link); // Clean up
+      toast.success("QR Code downloaded!");
+    } catch (err) {
+      console.error("Error downloading QR code:", err);
+      toast.error("Failed to download QR code");
+    }
   };
 
   return (
@@ -68,6 +86,10 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({ data, petName }) => {
       {loading ? (
         <div className="h-[300px] w-[300px] bg-gray-100 animate-pulse flex items-center justify-center">
           <span>Generating...</span>
+        </div>
+      ) : error ? (
+        <div className="h-[300px] w-[300px] bg-red-100 flex items-center justify-center text-red-600 p-4 text-center">
+          {error}
         </div>
       ) : qrUrl ? (
         <div className="p-4 bg-white rounded-md shadow-sm">

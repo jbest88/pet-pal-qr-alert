@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -8,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { QrCode, MapPin, Clock } from "lucide-react";
 import Layout from "@/components/Layout";
 import { format } from "date-fns";
+import { toast } from "sonner";
 
 const PetProfile = () => {
   const { petId } = useParams<{ petId: string }>();
@@ -18,21 +20,26 @@ const PetProfile = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // If user authentication is done loading and there's no user, redirect to login instead of register
+    // First check authentication
     if (!loading && !user) {
+      console.log("User not authenticated, redirecting to login");
       navigate("/login");
       return;
     }
     
-    // If petId is available, fetch the pet data
-    if (petId && !loading) {
+    // Only proceed if we have both user and petId
+    if (petId && user && !loading) {
+      console.log("Fetching pet data for:", petId);
       const foundPet = getPetById(petId);
+      
       if (foundPet) {
         setPet(foundPet);
         const events = getScanEventsByPetId(petId);
         setScanEvents(events);
+        console.log("Pet found:", foundPet.name);
       } else {
-        // Pet not found
+        console.log("Pet not found for id:", petId);
+        toast.error("Pet not found");
         navigate("/dashboard");
       }
       setIsLoading(false);

@@ -16,19 +16,24 @@ const QRCodePage = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // If user authentication is done loading and there's no user, redirect to login (not register)
+    // First check authentication
     if (!loading && !user) {
+      console.log("User not authenticated, redirecting to login");
       navigate("/login");
       return;
     }
     
-    // If petId is available, fetch the pet data
-    if (petId && !loading) {
+    // Only proceed if we have both user and petId
+    if (petId && user && !loading) {
+      console.log("Fetching pet data for:", petId);
       const foundPet = getPetById(petId);
+      
       if (foundPet) {
         setPet(foundPet);
+        console.log("Pet found:", foundPet.name);
       } else {
-        // Pet not found
+        console.log("Pet not found for id:", petId);
+        toast.error("Pet not found");
         navigate("/dashboard");
       }
       setIsLoading(false);
@@ -59,7 +64,7 @@ const QRCodePage = () => {
     );
   }
 
-  // Use pet.id as the QR code data if qrCodeUrl is not present
+  // Use pet.id as the QR code data
   const qrCodeData = pet.id;
 
   return (
