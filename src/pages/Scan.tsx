@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import Layout from "@/components/Layout";
-import { PawPrint, Send, AlertTriangle, Bug } from "lucide-react";
+import { PawPrint, Send, AlertTriangle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { mapSupabasePet } from "@/types";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
