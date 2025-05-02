@@ -61,7 +61,7 @@ const Login = () => {
     try {
       console.log("Attempting login with:", email);
       await login(email, password);
-      // The redirect will happen after successful login via AuthContext
+      // The login function will handle navigation to dashboard
     } catch (error: any) {
       console.error("Login error:", error);
       setLoginError(error.message || "Login failed");

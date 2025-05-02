@@ -119,7 +119,7 @@ if (users.length === 0) {
     name: "Demo User",
     email: "demo@example.com",
     phone: "555-123-4567",
-    created_at: new Date().toISOString() // Added the required created_at property
+    created_at: new Date().toISOString() // Required created_at property
   });
   
   setCurrentUser(demoUser.id);
