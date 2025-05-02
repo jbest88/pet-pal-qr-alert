@@ -18,14 +18,14 @@ const PetProfile = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // If user authentication is done loading and there's no user, redirect to register
+    // If user authentication is done loading and there's no user, redirect to login instead of register
     if (!loading && !user) {
-      navigate("/register");
+      navigate("/login");
       return;
     }
     
     // If petId is available, fetch the pet data
-    if (petId) {
+    if (petId && !loading) {
       const foundPet = getPetById(petId);
       if (foundPet) {
         setPet(foundPet);
@@ -35,9 +35,8 @@ const PetProfile = () => {
         // Pet not found
         navigate("/dashboard");
       }
+      setIsLoading(false);
     }
-    
-    setIsLoading(false);
   }, [petId, user, loading, navigate]);
   
   const formatDate = (dateString: string | number) => {
