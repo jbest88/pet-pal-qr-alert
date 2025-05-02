@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -41,6 +40,17 @@ const PetProfile = () => {
     setIsLoading(false);
   }, [petId, user, loading, navigate]);
   
+  const formatDate = (dateString: string | number) => {
+    try {
+      const date = typeof dateString === 'number' 
+        ? new Date(dateString) 
+        : new Date(dateString);
+      return format(date, "PPP 'at' p");
+    } catch (e) {
+      return "Unknown date";
+    }
+  };
+
   if (loading || isLoading) {
     return (
       <Layout>
@@ -156,7 +166,7 @@ const PetProfile = () => {
                       <div>
                         <div className="flex items-center text-gray-600 mb-2">
                           <Clock className="h-4 w-4 mr-2" />
-                          {format(new Date(event.timestamp), "PPP 'at' p")}
+                          {formatDate(event.timestamp || event.createdAt)}
                         </div>
                         
                         {event.location && (

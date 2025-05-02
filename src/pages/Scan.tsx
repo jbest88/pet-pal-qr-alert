@@ -72,8 +72,11 @@ const Scan = () => {
       // Create a scan event
       createScanEvent({
         petId: pet.id,
-        timestamp: Date.now(),
-        location,
+        createdAt: new Date().toISOString(),
+        location: location,
+        latitude: location?.lat,
+        longitude: location?.lng,
+        address: location?.address,
         scannerContact: contactInfo || undefined,
         message: message || undefined
       });

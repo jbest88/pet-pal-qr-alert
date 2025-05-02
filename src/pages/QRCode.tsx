@@ -60,6 +60,9 @@ const QRCodePage = () => {
     );
   }
 
+  // Generate QR code data if not already present
+  const qrCodeData = pet.qrCodeUrl || `/pet/${pet.id}`;
+
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8 max-w-lg">
@@ -71,7 +74,7 @@ const QRCodePage = () => {
         </div>
         
         <div className="mb-8 flex justify-center">
-          <QRCodeGenerator data={pet.qrCodeUrl} petName={pet.name} />
+          <QRCodeGenerator data={qrCodeData} petName={pet.name} />
         </div>
         
         <div className="mb-8">

@@ -65,7 +65,12 @@ export const setCurrentUser = (userId: string | null) => {
 
 // Pet methods
 export const createPet = (petData: Omit<Pet, "id">): Pet => {
-  const newPet = { ...petData, id: uuidv4() };
+  const petId = uuidv4();
+  const newPet = { 
+    ...petData, 
+    id: petId,
+    qrCodeUrl: petData.qrCodeUrl || `/pet/${petId}` // Use provided qrCodeUrl or generate one
+  };
   pets.push(newPet);
   saveToStorage();
   return newPet;
@@ -81,7 +86,12 @@ export const getPetById = (petId: string): Pet | undefined => {
 
 // Scan event methods
 export const createScanEvent = (scanData: Omit<ScanEvent, "id">): ScanEvent => {
-  const newScan = { ...scanData, id: uuidv4() };
+  const newScan = { 
+    ...scanData, 
+    id: uuidv4(),
+    timestamp: scanData.timestamp || Date.now(),
+    createdAt: scanData.createdAt || new Date().toISOString()
+  };
   scanEvents.push(newScan);
   saveToStorage();
   
@@ -113,12 +123,13 @@ if (users.length === 0) {
   
   setCurrentUser(demoUser.id);
   
+  const petId = uuidv4();
   const demoPet = createPet({
     ownerId: demoUser.id,
     name: "Buddy",
     type: "dog",
     breed: "Golden Retriever",
     description: "Friendly and playful, loves tennis balls",
-    qrCodeUrl: `/pet/${uuidv4()}`
+    qrCodeUrl: `/pet/${petId}`
   });
 }

@@ -18,6 +18,7 @@ export interface Pet {
   breed?: string | null;
   description?: string | null;
   imageUrl?: string | null;
+  qrCodeUrl?: string | null; // Added missing property
 }
 
 // Scan Event Types
@@ -30,6 +31,12 @@ export interface ScanEvent {
   scannerContact?: string | null;
   message?: string | null;
   createdAt: string;
+  timestamp?: number; // Added missing property
+  location?: { // Added missing property
+    lat: number;
+    lng: number;
+    address?: string;
+  } | null;
 }
 
 // Helper function to map from Supabase profile to our User type
@@ -51,7 +58,8 @@ export function mapSupabasePet(pet: Database["public"]["Tables"]["pets"]["Row"])
     type: pet.type as "dog" | "cat" | "other",
     breed: pet.breed,
     description: pet.description,
-    imageUrl: pet.image_url
+    imageUrl: pet.image_url,
+    qrCodeUrl: `/pet/${pet.id}` // Adding qrCodeUrl property
   };
 }
 
@@ -65,6 +73,12 @@ export function mapSupabaseScanEvent(scanEvent: Database["public"]["Tables"]["sc
     address: scanEvent.address,
     scannerContact: scanEvent.scanner_contact,
     message: scanEvent.message,
-    createdAt: scanEvent.created_at
+    createdAt: scanEvent.created_at,
+    timestamp: new Date(scanEvent.created_at).getTime(),
+    location: scanEvent.lat && scanEvent.lng ? {
+      lat: scanEvent.lat,
+      lng: scanEvent.lng,
+      address: scanEvent.address || undefined
+    } : null
   };
 }
