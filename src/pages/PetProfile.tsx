@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -263,9 +262,9 @@ const PetProfile = () => {
                 </Button>
                 {pet.isLost ? (
                   <Button 
-                    variant="success" 
+                    variant="default"
                     onClick={() => setFoundDialogOpen(true)}
-                    className="bg-green-600 hover:bg-green-700"
+                    className="bg-green-600 hover:bg-green-700 text-white"
                   >
                     Mark as Found
                   </Button>
@@ -282,7 +281,6 @@ const PetProfile = () => {
           </div>
         </div>
         
-        {/* Lost Pet Information (if applicable) */}
         {pet.isLost && (
           <Card className="mb-6 border-2 border-amber-500">
             <CardHeader className="bg-amber-50">
@@ -373,7 +371,6 @@ const PetProfile = () => {
           </div>
         </div>
         
-        {/* Only show scan history to the owner */}
         {isOwner && (
           <div className="mt-8">
             <h2 className="text-2xl font-bold mb-4">Scan History</h2>
