@@ -19,6 +19,7 @@ import Scan from "./pages/Scan";
 import HowItWorks from "./pages/HowItWorks";
 import Privacy from "./pages/Privacy";
 import NotFound from "./pages/NotFound";
+import LostPets from "./pages/LostPets";
 
 const queryClient = new QueryClient();
 
@@ -39,6 +40,7 @@ const App = () => (
             <Route path="/pet/:petId" element={<PetProfile />} />
             <Route path="/qr-code/:petId" element={<QRCodePage />} />
             <Route path="/scan/:scanId" element={<Scan />} />
+            <Route path="/lost-pets" element={<LostPets />} />
             <Route path="/how-it-works" element={<HowItWorks />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="*" element={<NotFound />} />

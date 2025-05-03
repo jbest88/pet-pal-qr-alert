@@ -20,6 +20,9 @@ export interface Pet {
   description?: string | null;
   imageUrl?: string | null;
   qrCodeUrl?: string | null;
+  isLost?: boolean;
+  lastSeenLocation?: string | null;
+  lostDate?: string | null;
 }
 
 // Scan Event Types
@@ -61,7 +64,10 @@ export function mapSupabasePet(pet: Database["public"]["Tables"]["pets"]["Row"])
     breed: pet.breed,
     description: pet.description,
     imageUrl: pet.image_url,
-    qrCodeUrl: `/pet/${pet.id}`
+    qrCodeUrl: `/pet/${pet.id}`,
+    isLost: pet.is_lost,
+    lastSeenLocation: pet.last_seen_location,
+    lostDate: pet.lost_date
   };
 }
 

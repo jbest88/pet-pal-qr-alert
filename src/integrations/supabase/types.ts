@@ -16,6 +16,9 @@ export type Database = {
           description: string | null
           id: string
           image_url: string | null
+          is_lost: boolean | null
+          last_seen_location: string | null
+          lost_date: string | null
           name: string
           owner_id: string
           type: string
@@ -26,6 +29,9 @@ export type Database = {
           description?: string | null
           id?: string
           image_url?: string | null
+          is_lost?: boolean | null
+          last_seen_location?: string | null
+          lost_date?: string | null
           name: string
           owner_id: string
           type: string
@@ -36,6 +42,9 @@ export type Database = {
           description?: string | null
           id?: string
           image_url?: string | null
+          is_lost?: boolean | null
+          last_seen_location?: string | null
+          lost_date?: string | null
           name?: string
           owner_id?: string
           type?: string
