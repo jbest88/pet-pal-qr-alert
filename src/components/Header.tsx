@@ -2,7 +2,7 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { PawPrint, Menu, X, LogIn } from "lucide-react";
+import { PawPrint, Menu, X, LogIn, AlertTriangle } from "lucide-react";
 import { useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
@@ -18,6 +18,12 @@ const Header = () => {
     <>
       <Link to="/" onClick={closeMenu}>
         <Button variant="ghost">Home</Button>
+      </Link>
+      <Link to="/lost-pets" onClick={closeMenu}>
+        <Button variant="ghost" className="flex items-center">
+          <AlertTriangle className="mr-2 h-4 w-4 text-amber-500" />
+          Lost Pets
+        </Button>
       </Link>
       {user ? (
         <>
