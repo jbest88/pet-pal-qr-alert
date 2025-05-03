@@ -88,9 +88,6 @@ const QRCodePage = () => {
     );
   }
 
-  // Use pet.id as the QR code data
-  const qrCodeData = pet.id;
-
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8 max-w-lg">
@@ -102,7 +99,7 @@ const QRCodePage = () => {
         </div>
         
         <div className="mb-8 flex justify-center">
-          <QRCodeGenerator data={qrCodeData} petName={pet.name} />
+          <QRCodeGenerator data={pet.id} petName={pet.name} />
         </div>
         
         <div className="mb-8">

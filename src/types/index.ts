@@ -25,6 +25,15 @@ export interface Pet {
   lostDate?: string | null;
 }
 
+// QR Link Type
+export interface QRLink {
+  id: string;
+  petId: string;
+  slug: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 // Scan Event Types
 export interface ScanEvent {
   id: string;
@@ -68,6 +77,17 @@ export function mapSupabasePet(pet: Database["public"]["Tables"]["pets"]["Row"])
     isLost: pet.is_lost,
     lastSeenLocation: pet.last_seen_location,
     lostDate: pet.lost_date
+  };
+}
+
+// Helper function to map from Supabase QR link to our QRLink type
+export function mapSupabaseQRLink(link: Database["public"]["Tables"]["qr_links"]["Row"]): QRLink {
+  return {
+    id: link.id,
+    petId: link.pet_id,
+    slug: link.slug,
+    createdAt: link.created_at,
+    updatedAt: link.updated_at
   };
 }
 
