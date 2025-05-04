@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
@@ -121,7 +120,7 @@ const Dashboard = () => {
         <div className="mb-8">
           <Button asChild className={`${glass} hover:bg-white/40 transition-all duration-300`}>
             <Link to="/add-pet">
-              <PlusCircle className="mr-2 h-4 w-4" /> Add New Pet
+              <PlusCircle className="h-4 w-4 mr-2" /> Add New Pet
             </Link>
           </Button>
         </div>

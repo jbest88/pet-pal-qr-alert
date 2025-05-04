@@ -20,7 +20,9 @@ const QRCodeStatus = ({ petId }: QRCodeStatusProps) => {
           <QrCode className="h-12 w-12 mx-auto text-primary" />
         </div>
         <Button asChild className={`w-full ${glass} hover:bg-white/40 transition-all duration-300`}>
-          <Link to={`/qr-code/${petId}`}>View & Download QR Code</Link>
+          <Link to={`/qr-code/${petId}`}>
+            <QrCode className="h-4 w-4 mr-2" /> View & Download QR Code
+          </Link>
         </Button>
       </CardContent>
     </Card>
