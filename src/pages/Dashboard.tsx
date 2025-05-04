@@ -133,7 +133,9 @@ const Dashboard = () => {
               Add your first pet to generate a QR code for their collar.
             </p>
             <Button asChild className={`${glass} hover:bg-white/40 transition-all duration-300`}>
-              <Link to="/add-pet">Get Started</Link>
+              <Link to="/add-pet">
+                <PlusCircle className="h-4 w-4 mr-2" /> Get Started
+              </Link>
             </Button>
           </div>
         ) : (
