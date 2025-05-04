@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -9,6 +8,7 @@ import Layout from "@/components/Layout";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { glass } from "@/lib/utils";
 
 // Import refactored components
 import LostPetCard from "@/components/pet/LostPetCard";
@@ -115,10 +115,10 @@ const PetProfile = () => {
   if (!pet) {
     return (
       <Layout>
-        <div className="container mx-auto px-4 py-8 text-center">
+        <div className={`container mx-auto px-4 py-8 text-center ${glass} rounded-lg`}>
           <h2 className="text-2xl font-bold mb-4">Pet Not Found</h2>
           <p className="mb-6">The pet profile you're looking for doesn't exist.</p>
-          <Button asChild>
+          <Button asChild className={glass}>
             <Link to="/dashboard">Return to Dashboard</Link>
           </Button>
         </div>
@@ -129,7 +129,7 @@ const PetProfile = () => {
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8">
-        <div className={`mb-6 flex flex-col md:flex-row md:justify-between md:items-center ${pet.isLost ? "bg-amber-50 p-4 rounded-lg border-2 border-amber-500" : ""}`}>
+        <div className={`mb-6 flex flex-col md:flex-row md:justify-between md:items-center ${pet.isLost ? "bg-amber-50/70 backdrop-blur-sm p-4 rounded-lg border-2 border-amber-500" : `${glass} p-4 rounded-lg`}`}>
           <div className="flex items-center gap-4">
             <Avatar className={`h-20 w-20 ${pet.isLost ? "border-2 border-amber-500" : "border-2 border-primary"}`}>
               {pet.imageUrl ? (
@@ -142,7 +142,7 @@ const PetProfile = () => {
               <h1 className="text-3xl font-bold flex items-center gap-2">
                 {pet.name}'s Profile
                 {pet.isLost && (
-                  <span className="text-amber-600 text-sm font-normal bg-amber-100 px-2 py-1 rounded-full flex items-center">
+                  <span className="text-amber-600 text-sm font-normal bg-amber-100/80 backdrop-blur-sm px-2 py-1 rounded-full flex items-center">
                     <AlertTriangle className="h-4 w-4 mr-1" /> Lost
                   </span>
                 )}
@@ -154,14 +154,14 @@ const PetProfile = () => {
             </div>
           </div>
           <div className="mt-4 md:mt-0 flex flex-wrap gap-3">
-            <Button asChild variant="outline">
+            <Button asChild variant="outline" className={glass}>
               <Link to={user ? "/dashboard" : "/"}>
                 Back {user ? "to Dashboard" : "Home"}
               </Link>
             </Button>
             {isOwner && (
               <>
-                <Button asChild>
+                <Button asChild className={glass}>
                   <Link to={`/qr-code/${pet.id}`}>
                     <QrCode className="mr-2 h-4 w-4" /> QR Code
                   </Link>
@@ -193,7 +193,7 @@ const PetProfile = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2">
             {pet.imageUrl && (
-              <div className="mb-6 overflow-hidden rounded-lg shadow-sm">
+              <div className={`mb-6 overflow-hidden rounded-lg shadow-sm ${glass}`}>
                 <div className="aspect-video w-full">
                   <img 
                     src={pet.imageUrl} 

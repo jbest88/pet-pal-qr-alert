@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -11,6 +10,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import ImageUpload from "@/components/ImageUpload";
+import { glass } from "@/lib/utils";
+import { Save, X } from "lucide-react";
 
 const EditPet = () => {
   const { petId } = useParams();
@@ -138,7 +139,7 @@ const EditPet = () => {
       <div className="container mx-auto px-4 py-8 max-w-md">
         <h1 className="text-3xl font-bold mb-6 text-center">Edit Pet Profile</h1>
         
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className={`space-y-6 ${glass} p-6 rounded-lg`}>
           <div className="space-y-4">
             <ImageUpload 
               onImageUploaded={handleImageUploaded} 
@@ -156,6 +157,7 @@ const EditPet = () => {
               placeholder="Enter your pet's name"
               disabled={submitting}
               required
+              className={`${glass} border-none focus-visible:ring-primary`}
             />
           </div>
           
@@ -166,10 +168,10 @@ const EditPet = () => {
               onValueChange={(value) => setPet({ ...pet, type: value })}
               disabled={submitting}
             >
-              <SelectTrigger>
+              <SelectTrigger className={glass}>
                 <SelectValue placeholder="Select pet type" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className={glass}>
                 <SelectItem value="dog">Dog</SelectItem>
                 <SelectItem value="cat">Cat</SelectItem>
                 <SelectItem value="other">Other</SelectItem>
@@ -185,6 +187,7 @@ const EditPet = () => {
               onChange={(e) => setPet({ ...pet, breed: e.target.value })}
               placeholder="Enter your pet's breed"
               disabled={submitting}
+              className={`${glass} border-none focus-visible:ring-primary`}
             />
           </div>
           
@@ -197,6 +200,7 @@ const EditPet = () => {
               placeholder="Describe your pet (color, size, special marks, etc.)"
               disabled={submitting}
               rows={4}
+              className={`${glass} border-none focus-visible:ring-primary`}
             />
           </div>
           
@@ -204,18 +208,24 @@ const EditPet = () => {
             <Button 
               type="button" 
               variant="outline" 
-              className="flex-1"
+              className={`flex-1 ${glass}`}
               onClick={() => navigate("/dashboard")}
               disabled={submitting}
             >
-              Cancel
+              <X className="mr-2 h-4 w-4" /> Cancel
             </Button>
             <Button 
               type="submit" 
-              className="flex-1" 
+              className={`flex-1 ${glass} hover:bg-white/40 transition-all duration-300`} 
               disabled={submitting}
             >
-              {submitting ? "Saving Changes..." : "Save Changes"}
+              {submitting ? (
+                "Saving Changes..."
+              ) : (
+                <>
+                  <Save className="mr-2 h-4 w-4" /> Save Changes
+                </>
+              )}
             </Button>
           </div>
         </form>

@@ -1,6 +1,7 @@
 
 import { Pet } from "@/types";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { glass } from "@/lib/utils";
 
 interface PetInfoProps {
   pet: Pet;
@@ -8,7 +9,7 @@ interface PetInfoProps {
 
 const PetInfo = ({ pet }: PetInfoProps) => {
   return (
-    <Card>
+    <Card className={glass}>
       <CardHeader>
         <CardTitle>About {pet.name}</CardTitle>
       </CardHeader>

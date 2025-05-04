@@ -17,3 +17,6 @@ export function formatDate(dateString: string | number) {
     return "Unknown date";
   }
 }
+
+// Glass morphism utility class
+export const glass = "backdrop-blur-md bg-white/30 border border-white/20 shadow-lg";
