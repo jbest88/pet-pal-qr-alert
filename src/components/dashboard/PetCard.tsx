@@ -22,10 +22,10 @@ const PetCard = ({ pet, onDeleteClick }: PetCardProps) => {
 
   return (
     <Card key={pet.id} className={`overflow-hidden ${glass} transition-all duration-300 hover:shadow-xl`}>
-      {pet.image_url ? (
+      {pet.imageUrl ? (
         <div className="aspect-video w-full">
           <img 
-            src={pet.image_url} 
+            src={pet.imageUrl} 
             alt={pet.name}
             className="w-full h-full object-cover" 
           />

@@ -8,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import Layout from "@/components/Layout";
 import { toast } from "sonner";
 import { glass } from "@/lib/utils";
-import { Pet } from "@/types";
+import { Pet, mapSupabasePet } from "@/types";
 import PetGrid from "@/components/dashboard/PetGrid";
 import DeletePetDialog from "@/components/dashboard/DeletePetDialog";
 import DashboardLoading from "@/components/dashboard/DashboardLoading";
@@ -41,7 +41,9 @@ const Dashboard = () => {
         }
         
         console.log("Pets fetched:", data);
-        setPets(data || []);
+        // Map Supabase response to our Pet interface
+        const mappedPets = data ? data.map(mapSupabasePet) : [];
+        setPets(mappedPets);
       } catch (error) {
         console.error('Error fetching pets:', error);
       } finally {
