@@ -5,14 +5,17 @@ import { Pet, mapSupabasePet } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link } from "react-router-dom";
-import { MapPin, Clock } from "lucide-react";
+import { MapPin, Clock, Filter } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { format } from "date-fns";
 import Layout from "@/components/Layout";
+import { Input } from "@/components/ui/input";
 
 const LostPets = () => {
   const [lostPets, setLostPets] = useState<Pet[]>([]);
+  const [filteredPets, setFilteredPets] = useState<Pet[]>([]);
   const [loading, setLoading] = useState(true);
+  const [locationFilter, setLocationFilter] = useState("");
 
   useEffect(() => {
     const fetchLostPets = async () => {
@@ -30,6 +33,7 @@ const LostPets = () => {
 
         const mappedPets = data.map(mapSupabasePet);
         setLostPets(mappedPets);
+        setFilteredPets(mappedPets);
       } catch (error) {
         console.error("Error fetching lost pets:", error);
       } finally {
@@ -39,6 +43,18 @@ const LostPets = () => {
 
     fetchLostPets();
   }, []);
+
+  useEffect(() => {
+    if (locationFilter.trim() === "") {
+      setFilteredPets(lostPets);
+    } else {
+      const filtered = lostPets.filter(pet => 
+        pet.lastSeenLocation && 
+        pet.lastSeenLocation.toLowerCase().includes(locationFilter.toLowerCase())
+      );
+      setFilteredPets(filtered);
+    }
+  }, [locationFilter, lostPets]);
 
   const getPetInitials = (name: string) => {
     return name.substring(0, 2).toUpperCase();
@@ -63,21 +79,56 @@ const LostPets = () => {
           </p>
         </div>
 
+        <div className="mb-6 flex items-center gap-2 max-w-md mx-auto">
+          <div className="relative grow">
+            <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
+            <Input
+              type="text"
+              placeholder="Filter by location"
+              value={locationFilter}
+              onChange={(e) => setLocationFilter(e.target.value)}
+              className="pl-9 w-full"
+            />
+          </div>
+          <Button 
+            variant="outline" 
+            size="icon"
+            onClick={() => setLocationFilter("")}
+            className="shrink-0"
+            title="Clear filter"
+          >
+            <Filter className="h-4 w-4" />
+          </Button>
+        </div>
+
         {loading ? (
           <div className="flex justify-center items-center py-12">
             <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
           </div>
-        ) : lostPets.length === 0 ? (
+        ) : filteredPets.length === 0 ? (
           <div className="text-center py-12 bg-white rounded-lg shadow-sm">
             <MapPin className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-            <h2 className="text-xl font-semibold mb-2">No Lost Pets</h2>
+            <h2 className="text-xl font-semibold mb-2">
+              {locationFilter ? "No Lost Pets Found in This Area" : "No Lost Pets"}
+            </h2>
             <p className="text-gray-500 mb-6">
-              There are currently no pets reported as lost. Check back later or report your lost pet if needed.
+              {locationFilter
+                ? `There are currently no lost pets reported in "${locationFilter}". Try a different location or clear the filter.`
+                : "There are currently no pets reported as lost. Check back later or report your lost pet if needed."}
             </p>
+            {locationFilter && (
+              <Button 
+                variant="outline" 
+                onClick={() => setLocationFilter("")}
+                className="mx-auto"
+              >
+                Clear Filter
+              </Button>
+            )}
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {lostPets.map((pet) => (
+            {filteredPets.map((pet) => (
               <Card key={pet.id} className="overflow-hidden border-2 border-amber-500">
                 {pet.imageUrl ? (
                   <div className="aspect-video w-full">
