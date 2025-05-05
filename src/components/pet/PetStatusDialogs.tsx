@@ -137,7 +137,7 @@ const PetStatusDialogs = ({
             <AlertDialogAction 
               onClick={handleMarkAsLost} 
               disabled={markingAsLost}
-              className={`bg-destructive text-destructive-foreground hover:bg-destructive/90 ${glass} flex items-center gap-2`}
+              className={`bg-destructive text-destructive-foreground hover:bg-destructive/90 ${glass} flex items-center gap-2 text-black`}
             >
               <Flag className="h-4 w-4" />
               {markingAsLost ? "Marking as Lost..." : "Mark as Lost"}
@@ -160,7 +160,7 @@ const PetStatusDialogs = ({
             <AlertDialogAction 
               onClick={handleMarkAsFound} 
               disabled={markingAsFound}
-              className={`bg-green-600 text-white hover:bg-green-700 ${glass} flex items-center gap-2`}
+              className={`bg-green-600 hover:bg-green-700 ${glass} flex items-center gap-2 text-black`}
             >
               <FlagOff className="h-4 w-4" />
               {markingAsFound ? "Marking as Found..." : "Mark as Found"}

@@ -54,7 +54,7 @@ const PetCard = ({ pet, onDeleteClick }: PetCardProps) => {
           <Button 
             variant="outline" 
             size="icon" 
-            className={`${glass} hover:bg-white/40`}
+            className={`${glass} hover:bg-white/40 text-black`}
             onClick={() => navigate(`/pet/${pet.id}`)}
           >
             <Eye className="h-4 w-4" />
@@ -62,7 +62,7 @@ const PetCard = ({ pet, onDeleteClick }: PetCardProps) => {
           <Button 
             variant="default"
             size="icon"
-            className={`${glass} hover:bg-white/40`}
+            className={`${glass} hover:bg-white/40 text-black`}
             onClick={() => navigate(`/qr-code/${pet.id}`)}
           >
             <QrCode className="h-4 w-4" />
@@ -72,7 +72,7 @@ const PetCard = ({ pet, onDeleteClick }: PetCardProps) => {
           <Button 
             variant="outline" 
             size="icon" 
-            className={`${glass} hover:bg-white/40`}
+            className={`${glass} hover:bg-white/40 text-black`}
             onClick={() => navigate(`/edit-pet/${pet.id}`)}
           >
             <Pencil className="h-4 w-4" />
@@ -80,7 +80,7 @@ const PetCard = ({ pet, onDeleteClick }: PetCardProps) => {
           <Button 
             variant="outline" 
             size="icon" 
-            className={`${glass} hover:bg-white/40 hover:text-destructive`}
+            className={`${glass} hover:bg-white/40 hover:text-destructive text-black`}
             onClick={() => onDeleteClick(pet)}
           >
             <Trash2 className="h-4 w-4" />

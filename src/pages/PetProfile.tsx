@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -155,14 +154,14 @@ const PetProfile = () => {
             </div>
           </div>
           <div className="mt-4 md:mt-0 flex flex-wrap gap-3">
-            <Button asChild variant="outline" className={glass}>
+            <Button asChild variant="outline" className={`${glass} text-black`}>
               <Link to={user ? "/dashboard" : "/"}>
                 Back {user ? "to Dashboard" : "Home"}
               </Link>
             </Button>
             {isOwner && (
               <>
-                <Button asChild className={glass}>
+                <Button asChild className={`${glass} text-black`}>
                   <Link to={`/qr-code/${pet.id}`}>
                     <QrCode className="mr-2 h-4 w-4" /> QR Code
                   </Link>
@@ -171,7 +170,7 @@ const PetProfile = () => {
                   <Button 
                     variant="default"
                     onClick={() => setFoundDialogOpen(true)}
-                    className={`bg-green-600 hover:bg-green-700 text-white flex items-center gap-2 ${glass}`}
+                    className={`bg-green-600 hover:bg-green-700 ${glass} flex items-center gap-2 text-black`}
                   >
                     <FlagOff className="h-4 w-4" />
                     Mark as Found
@@ -180,7 +179,7 @@ const PetProfile = () => {
                   <Button 
                     variant="destructive" 
                     onClick={() => setLostDialogOpen(true)}
-                    className={`flex items-center gap-2 ${glass}`}
+                    className={`flex items-center gap-2 ${glass} text-black`}
                   >
                     <Flag className="h-4 w-4" />
                     Mark as Lost

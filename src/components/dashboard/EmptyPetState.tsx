@@ -12,7 +12,7 @@ const EmptyPetState = () => {
       <p className="text-gray-500 mb-6">
         Add your first pet to generate a QR code for their collar.
       </p>
-      <Button asChild className={`${glass} hover:bg-white/40 transition-all duration-300`}>
+      <Button asChild className={`${glass} hover:bg-white/40 transition-all duration-300 text-black`}>
         <Link to="/add-pet">
           <PlusCircle className="h-4 w-4 mr-2" /> Get Started
         </Link>
