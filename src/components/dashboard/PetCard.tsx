@@ -4,7 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Pencil, Trash2, Eye, QrCode } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { glass } from "@/lib/utils";
 import { Pet } from "@/types";
 
@@ -60,6 +60,7 @@ const PetCard = ({ pet, onDeleteClick }: PetCardProps) => {
             <Eye className="h-4 w-4" />
           </Button>
           <Button 
+            variant="default"
             size="icon"
             className={`${glass} hover:bg-white/40`}
             onClick={() => navigate(`/qr-code/${pet.id}`)}

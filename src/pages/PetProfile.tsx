@@ -1,9 +1,10 @@
+
 import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Pet, ScanEvent, mapSupabasePet, mapSupabaseScanEvent } from "@/types";
 import { Button } from "@/components/ui/button";
-import { QrCode, AlertTriangle } from "lucide-react";
+import { QrCode, AlertTriangle, Flag, FlagOff } from "lucide-react";
 import Layout from "@/components/Layout";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -170,15 +171,18 @@ const PetProfile = () => {
                   <Button 
                     variant="default"
                     onClick={() => setFoundDialogOpen(true)}
-                    className="bg-green-600 hover:bg-green-700 text-white"
+                    className="bg-green-600 hover:bg-green-700 text-white flex items-center gap-2"
                   >
+                    <FlagOff className="h-4 w-4" />
                     Mark as Found
                   </Button>
                 ) : (
                   <Button 
                     variant="destructive" 
                     onClick={() => setLostDialogOpen(true)}
+                    className="flex items-center gap-2"
                   >
+                    <Flag className="h-4 w-4" />
                     Mark as Lost
                   </Button>
                 )}
