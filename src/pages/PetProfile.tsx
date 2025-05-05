@@ -171,7 +171,7 @@ const PetProfile = () => {
                   <Button 
                     variant="default"
                     onClick={() => setFoundDialogOpen(true)}
-                    className="bg-green-600 hover:bg-green-700 text-white flex items-center gap-2"
+                    className={`bg-green-600 hover:bg-green-700 text-white flex items-center gap-2 ${glass}`}
                   >
                     <FlagOff className="h-4 w-4" />
                     Mark as Found
@@ -180,7 +180,7 @@ const PetProfile = () => {
                   <Button 
                     variant="destructive" 
                     onClick={() => setLostDialogOpen(true)}
-                    className="flex items-center gap-2"
+                    className={`flex items-center gap-2 ${glass}`}
                   >
                     <Flag className="h-4 w-4" />
                     Mark as Lost

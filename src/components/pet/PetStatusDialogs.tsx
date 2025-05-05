@@ -16,6 +16,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Flag, FlagOff } from "lucide-react";
+import { glass } from "@/lib/utils";
 
 interface PetStatusDialogsProps {
   pet: Pet;
@@ -136,7 +137,7 @@ const PetStatusDialogs = ({
             <AlertDialogAction 
               onClick={handleMarkAsLost} 
               disabled={markingAsLost}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90 flex items-center gap-2"
+              className={`bg-destructive text-destructive-foreground hover:bg-destructive/90 ${glass} flex items-center gap-2`}
             >
               <Flag className="h-4 w-4" />
               {markingAsLost ? "Marking as Lost..." : "Mark as Lost"}
@@ -159,7 +160,7 @@ const PetStatusDialogs = ({
             <AlertDialogAction 
               onClick={handleMarkAsFound} 
               disabled={markingAsFound}
-              className="bg-green-600 text-white hover:bg-green-700 flex items-center gap-2"
+              className={`bg-green-600 text-white hover:bg-green-700 ${glass} flex items-center gap-2`}
             >
               <FlagOff className="h-4 w-4" />
               {markingAsFound ? "Marking as Found..." : "Mark as Found"}
