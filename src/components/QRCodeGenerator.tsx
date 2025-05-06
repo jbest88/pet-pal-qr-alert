@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import QRCode from "qrcode";
 import { Button } from "@/components/ui/button";
@@ -87,9 +88,11 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({ data: petId, petName,
   const handleRegenerate = async () => {
     try {
       setRegenerating(true);
+      setError(null);
       
       // Generate a new slug for the pet's QR code
       const newSlug = nanoid(10);
+      console.log(`Regenerating QR code with new slug: ${newSlug} for pet: ${petId}`);
       
       // Update the QR link in the database
       const { error } = await supabase
@@ -97,8 +100,12 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({ data: petId, petName,
         .update({ slug: newSlug })
         .eq('pet_id', petId);
       
-      if (error) throw error;
+      if (error) {
+        console.error("Error updating QR link in database:", error);
+        throw error;
+      }
       
+      console.log(`Successfully updated QR link in database for pet ${petId}`);
       setSlug(newSlug);
       await generateQRCode(newSlug);
       toast.success("QR code has been regenerated");
@@ -107,7 +114,9 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({ data: petId, petName,
         onRegenerate();
       }
     } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : String(err);
       console.error("Error regenerating QR link:", err);
+      setError(`Failed to regenerate QR code: ${errorMessage}`);
       toast.error("Failed to regenerate QR code");
     } finally {
       setRegenerating(false);

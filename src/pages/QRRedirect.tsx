@@ -20,14 +20,16 @@ const QRRedirect = () => {
       try {
         console.log(`Looking up QR code with slug: ${slug}`);
         
-        // Find the pet ID from the QR slug with detailed debug logging
+        // Try to find the pet ID from the QR slug
         const { data, error } = await supabase
           .from('qr_links')
           .select('pet_id')
           .eq('slug', slug)
-          .single();
+          .maybeSingle(); // Use maybeSingle instead of single to prevent errors if no record is found
+        
+        console.log("Query result:", data, error);
 
-        if (error) {
+        if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
           console.error("Database error finding QR link:", error);
           toast.error("Error processing QR code");
           navigate("/");
@@ -43,7 +45,7 @@ const QRRedirect = () => {
 
         console.log(`Found pet ID for QR slug ${slug}: ${data.pet_id}`);
 
-        // Redirect to pet profile page instead of scan page
+        // Redirect to pet profile page
         navigate(`/pet/${data.pet_id}`);
       } catch (err) {
         console.error("Error in QR redirect:", err);
