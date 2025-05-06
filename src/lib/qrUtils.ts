@@ -1,3 +1,4 @@
+
 import { nanoid } from "nanoid";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -16,6 +17,7 @@ export async function getQRLinkForPet(petId: string): Promise<string> {
 
     // If we found an existing link, use it
     if (existingLink) {
+      console.log(`Using existing QR link for pet ${petId}: ${existingLink.slug}`);
       return existingLink.slug;
     }
 
@@ -31,6 +33,7 @@ export async function getQRLinkForPet(petId: string): Promise<string> {
 
     if (insertError) throw insertError;
     
+    console.log(`Created new QR link for pet ${petId}: ${newSlug}`);
     return newSlug;
   } catch (error) {
     console.error("Error getting QR link:", error);

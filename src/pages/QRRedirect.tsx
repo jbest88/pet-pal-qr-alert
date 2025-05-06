@@ -18,22 +18,33 @@ const QRRedirect = () => {
       }
 
       try {
+        console.log(`Looking up QR code with slug: ${slug}`);
+        
         // Find the pet ID from the QR slug
         const { data, error } = await supabase
           .from('qr_links')
           .select('pet_id')
           .eq('slug', slug)
-          .single();
+          .maybeSingle();
 
-        if (error || !data) {
+        if (error) {
           console.error("Error finding QR link:", error);
+          toast.error("Error processing QR code");
+          navigate("/");
+          return;
+        }
+
+        if (!data) {
+          console.error("QR code not found:", slug);
           toast.error("QR code not found");
           navigate("/");
           return;
         }
 
-        // Redirect to scan page with the pet ID
-        navigate(`/scan/${data.pet_id}`);
+        console.log(`Found pet ID for QR slug ${slug}: ${data.pet_id}`);
+
+        // Redirect to pet profile page instead of scan page
+        navigate(`/pet/${data.pet_id}`);
       } catch (err) {
         console.error("Error in QR redirect:", err);
         toast.error("Failed to process QR code");
