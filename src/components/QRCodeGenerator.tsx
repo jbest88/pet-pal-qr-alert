@@ -94,11 +94,34 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({ data: petId, petName,
       const newSlug = nanoid(10);
       console.log(`Regenerating QR code with new slug: ${newSlug} for pet: ${petId}`);
       
-      // Update the QR link in the database
-      const { error } = await supabase
+      // First verify if there's an existing record
+      const { data: existingLink } = await supabase
         .from('qr_links')
-        .update({ slug: newSlug })
-        .eq('pet_id', petId);
+        .select('id')
+        .eq('pet_id', petId)
+        .maybeSingle();
+      
+      let error;
+      
+      if (existingLink) {
+        // Update existing link
+        const result = await supabase
+          .from('qr_links')
+          .update({ slug: newSlug })
+          .eq('pet_id', petId);
+          
+        error = result.error;
+      } else {
+        // Create new link
+        const result = await supabase
+          .from('qr_links')
+          .insert({ 
+            pet_id: petId,
+            slug: newSlug 
+          });
+          
+        error = result.error;
+      }
       
       if (error) {
         console.error("Error updating QR link in database:", error);
