@@ -1,11 +1,11 @@
+
 import React, { useEffect, useState } from "react";
 import QRCode from "qrcode";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { AlertTriangle, RefreshCw } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
-import { nanoid } from "nanoid";
+import { buildQRCodeUrl, getQRLinkForPet } from "@/lib/qrUtils";
 
 interface QRCodeGeneratorProps {
   data: string;
@@ -34,8 +34,7 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({ data: petId, petName,
       setError(null);
       
       // Ensure we're using a complete, absolute URL for the QR code
-      const baseUrl = window.location.origin;
-      const fullUrl = `${baseUrl}/qr/${qrSlug}`;
+      const fullUrl = buildQRCodeUrl(qrSlug);
       
       console.log(`🔍 QR Code slug: ${qrSlug} for pet ID: ${petId}`);
       console.log("🔄 Generating QR code for URL:", fullUrl);
@@ -69,40 +68,10 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({ data: petId, petName,
   useEffect(() => {
     const fetchOrCreateQRLink = async () => {
       try {
-        // First try to find an existing QR link for this pet
-        const { data: existingLink, error: fetchError } = await supabase
-          .from('qr_links')
-          .select('*')
-          .eq('pet_id', petId)
-          .maybeSingle();
-
-        if (fetchError && fetchError.code !== 'PGRST116') { // PGRST116 = no rows returned
-          throw fetchError;
-        }
-
-        // If we found an existing link, use it
-        if (existingLink) {
-          console.log("Found existing QR link:", existingLink);
-          setSlug(existingLink.slug);
-          await generateQRCode(existingLink.slug);
-          return;
-        }
-
-        // Otherwise, create a new one
-        const newSlug = nanoid(10); // Generate a short, unique ID for the QR link
-        
-        const { error: insertError } = await supabase
-          .from('qr_links')
-          .insert({
-            pet_id: petId,
-            slug: newSlug
-          });
-
-        if (insertError) throw insertError;
-        
-        console.log("Created new QR link with slug:", newSlug);
-        setSlug(newSlug);
-        await generateQRCode(newSlug);
+        // Get or create QR link using our utility function
+        const qrSlug = await getQRLinkForPet(petId);
+        setSlug(qrSlug);
+        await generateQRCode(qrSlug);
       } catch (err) {
         console.error("Error setting up QR link:", err);
         setError("Failed to set up QR link");
@@ -117,15 +86,8 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({ data: petId, petName,
   const handleRegenerate = async () => {
     try {
       setRegenerating(true);
-      const newSlug = nanoid(10);
-      
-      const { error } = await supabase
-        .from('qr_links')
-        .update({ slug: newSlug })
-        .eq('pet_id', petId);
-      
-      if (error) throw error;
-      
+      // Generate a new slug and update the database
+      const newSlug = await getQRLinkForPet(petId);
       setSlug(newSlug);
       await generateQRCode(newSlug);
       toast.success("QR code has been regenerated");
@@ -167,8 +129,7 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({ data: petId, petName,
       return;
     }
     
-    const baseUrl = window.location.origin;
-    const fullUrl = `${baseUrl}/qr/${slug}`;
+    const fullUrl = buildQRCodeUrl(slug);
     console.log("🧪 Testing QR code with URL:", fullUrl);
     window.open(fullUrl, '_blank');
     toast.success("Opening scan page in new tab for testing");
@@ -210,7 +171,7 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({ data: petId, petName,
         <Button 
           onClick={downloadQRCode} 
           disabled={loading || !qrUrl}
-          className="flex-1"
+          className="flex-1 text-black"
         >
           Download QR Code
         </Button>
@@ -219,7 +180,7 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({ data: petId, petName,
           onClick={testQRCode}
           disabled={loading || !qrUrl}
           variant="outline"
-          className="flex-1"
+          className="flex-1 text-black"
         >
           Test QR Code
         </Button>
@@ -229,7 +190,7 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({ data: petId, petName,
         onClick={handleRegenerate}
         disabled={loading || regenerating}
         variant="secondary"
-        className="w-full"
+        className="w-full text-black"
       >
         {regenerating ? "Regenerating..." : (
           <>
