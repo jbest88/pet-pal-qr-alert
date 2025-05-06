@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import QRCode from "qrcode";
 import { Button } from "@/components/ui/button";
@@ -6,6 +5,8 @@ import { toast } from "sonner";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { AlertTriangle, RefreshCw } from "lucide-react";
 import { buildQRCodeUrl, getQRLinkForPet } from "@/lib/qrUtils";
+import { supabase } from "@/integrations/supabase/client";
+import { nanoid } from "nanoid";
 
 interface QRCodeGeneratorProps {
   data: string;
@@ -86,8 +87,18 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({ data: petId, petName,
   const handleRegenerate = async () => {
     try {
       setRegenerating(true);
-      // Generate a new slug and update the database
-      const newSlug = await getQRLinkForPet(petId);
+      
+      // Generate a new slug for the pet's QR code
+      const newSlug = nanoid(10);
+      
+      // Update the QR link in the database
+      const { error } = await supabase
+        .from('qr_links')
+        .update({ slug: newSlug })
+        .eq('pet_id', petId);
+      
+      if (error) throw error;
+      
       setSlug(newSlug);
       await generateQRCode(newSlug);
       toast.success("QR code has been regenerated");
