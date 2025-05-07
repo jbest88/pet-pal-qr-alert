@@ -1,3 +1,4 @@
+
 import { nanoid } from "nanoid";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -55,7 +56,11 @@ export function buildQRCodeUrl(slug: string): string {
   
   // Get the current origin (domain) of the application
   const baseUrl = window.location.origin;
+  
+  // Important fix: Make sure we're using the correct path format
+  // This is critical - we need to match exactly how App.tsx routes are configured
   const fullUrl = `${baseUrl}/qr/${slug}`;
+  
   console.log(`Built QR code URL: ${fullUrl} for slug: ${slug}`);
   return fullUrl;
 }
