@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -19,7 +20,7 @@ import PetStatusDialogs from "@/components/pet/PetStatusDialogs";
 
 const PetProfile = () => {
   const { petId } = useParams<{ petId: string }>();
-  const { user, loading } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [pet, setPet] = useState<Pet | null>(null);
   const [scanEvents, setScanEvents] = useState<ScanEvent[]>([]);
@@ -47,14 +48,14 @@ const PetProfile = () => {
           if (petError) {
             console.error("Error fetching pet:", petError);
             toast.error("Error loading pet data");
-            navigate("/dashboard");
+            navigate("/");
             return;
           }
           
           if (!petData) {
             console.log("Pet not found for id:", petId);
             toast.error("Pet not found");
-            navigate("/dashboard");
+            navigate("/");
             return;
           }
           
@@ -65,22 +66,22 @@ const PetProfile = () => {
           // Check if the current user is the owner
           if (user && mappedPet.ownerId === user.id) {
             setIsOwner(true);
+            
+            // Only fetch scan events if the user is the owner
+            const { data: scanData, error: scanError } = await supabase
+              .from('scan_events')
+              .select('*')
+              .eq('pet_id', petId)
+              .order('created_at', { ascending: false });
+              
+            if (scanError) {
+              console.error("Error fetching scan events:", scanError);
+            } else if (scanData) {
+              const mappedScans = scanData.map(mapSupabaseScanEvent);
+              setScanEvents(mappedScans);
+            }
           } else {
             setIsOwner(false);
-          }
-          
-          // Fetch scan events
-          const { data: scanData, error: scanError } = await supabase
-            .from('scan_events')
-            .select('*')
-            .eq('pet_id', petId)
-            .order('created_at', { ascending: false });
-            
-          if (scanError) {
-            console.error("Error fetching scan events:", scanError);
-          } else if (scanData) {
-            const mappedScans = scanData.map(mapSupabaseScanEvent);
-            setScanEvents(mappedScans);
           }
         } catch (err) {
           console.error("Error in data fetch:", err);
@@ -119,7 +120,7 @@ const PetProfile = () => {
           <h2 className="text-2xl font-bold mb-4">Pet Not Found</h2>
           <p className="mb-6">The pet profile you're looking for doesn't exist.</p>
           <Button asChild className={glass}>
-            <Link to="/dashboard">Return to Dashboard</Link>
+            <Link to="/">Return Home</Link>
           </Button>
         </div>
       </Layout>
@@ -155,8 +156,8 @@ const PetProfile = () => {
           </div>
           <div className="mt-4 md:mt-0 flex flex-wrap gap-3">
             <Button asChild variant="outline" className={`${glass} text-black`}>
-              <Link to={user ? "/dashboard" : "/"}>
-                Back {user ? "to Dashboard" : "Home"}
+              <Link to="/">
+                Back Home
               </Link>
             </Button>
             {isOwner && (
@@ -187,6 +188,13 @@ const PetProfile = () => {
                 )}
               </>
             )}
+            {user && !isOwner && (
+              <Button asChild className={`${glass} text-black`}>
+                <Link to="/dashboard">
+                  My Dashboard
+                </Link>
+              </Button>
+            )}
           </div>
         </div>
         
@@ -214,6 +222,20 @@ const PetProfile = () => {
           <div>
             {/* QR Code Status */}
             <QRCodeStatus petId={pet.id} />
+
+            {!user && (
+              <div className="mt-6 p-4 bg-primary/5 rounded-lg border border-primary/20">
+                <h3 className="font-medium mb-2">Found this pet?</h3>
+                <p className="text-sm text-gray-600 mb-4">
+                  If you've found {pet.name}, please scan the QR code on their collar or click the button below to report their location.
+                </p>
+                <Button asChild variant="outline">
+                  <Link to={`/scan/${pet.id}`}>
+                    I've Found This Pet
+                  </Link>
+                </Button>
+              </div>
+            )}
           </div>
         </div>
         
@@ -228,14 +250,16 @@ const PetProfile = () => {
       </div>
       
       {/* Pet Status Dialogs */}
-      <PetStatusDialogs 
-        pet={pet}
-        onPetStatusChange={handlePetStatusChange}
-        lostDialogOpen={lostDialogOpen}
-        setLostDialogOpen={setLostDialogOpen}
-        foundDialogOpen={foundDialogOpen}
-        setFoundDialogOpen={setFoundDialogOpen}
-      />
+      {isOwner && (
+        <PetStatusDialogs 
+          pet={pet}
+          onPetStatusChange={handlePetStatusChange}
+          lostDialogOpen={lostDialogOpen}
+          setLostDialogOpen={setLostDialogOpen}
+          foundDialogOpen={foundDialogOpen}
+          setFoundDialogOpen={setFoundDialogOpen}
+        />
+      )}
     </Layout>
   );
 };

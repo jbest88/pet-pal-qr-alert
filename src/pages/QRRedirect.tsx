@@ -46,7 +46,7 @@ const QRRedirect = () => {
 
         console.log(`QR Redirect: Found pet ID for QR slug ${slug}: ${data.pet_id}`);
 
-        // Redirect to pet profile page
+        // Redirect to pet profile page - this works for both logged-in and anonymous users
         navigate(`/pet/${data.pet_id}`);
       } catch (err) {
         console.error("Error in QR redirect:", err);
