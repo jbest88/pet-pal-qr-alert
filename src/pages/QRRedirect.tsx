@@ -27,7 +27,7 @@ const QRRedirect = () => {
           .eq('slug', slug)
           .maybeSingle();
         
-        console.log("QR redirect query result:", data, error);
+        console.log("QR redirect query result:", { data, slug, error });
 
         if (error) {
           console.error("Database error finding QR link:", error);

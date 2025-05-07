@@ -53,6 +53,7 @@ export function buildQRCodeUrl(slug: string): string {
     throw new Error("No slug provided for QR code URL");
   }
   
+  // Get the current origin (domain) of the application
   const baseUrl = window.location.origin;
   const fullUrl = `${baseUrl}/qr/${slug}`;
   console.log(`Built QR code URL: ${fullUrl} for slug: ${slug}`);
