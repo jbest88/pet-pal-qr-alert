@@ -16,67 +16,56 @@ const QRCodePage = () => {
   const navigate = useNavigate();
   const [pet, setPet] = useState<Pet | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isOwner, setIsOwner] = useState(false);
 
   useEffect(() => {
-    // First check authentication - this page requires login
-    if (!loading && !user) {
-      console.log("User not authenticated, redirecting to login");
-      toast.error("Please sign in to view QR codes");
-      
-      // Remember where the user was trying to go for after login
-      sessionStorage.setItem('redirectAfterLogin', `/qr-code/${petId}`);
-      
-      navigate("/login");
+    if (!petId) {
+      console.log("No pet ID provided");
+      toast.error("No pet information found");
+      navigate("/");
       return;
     }
     
-    // Only proceed if we have both user and petId
-    if (petId && user && !loading) {
-      console.log("Fetching pet data for:", petId);
-      const fetchPet = async () => {
-        try {
-          const { data, error } = await supabase
-            .from('pets')
-            .select('*')
-            .eq('id', petId)
-            .maybeSingle();
-          
-          if (error) {
-            console.error("Error fetching pet:", error);
-            toast.error("Error loading pet data");
-            navigate("/dashboard");
-            return;
-          }
-          
-          if (data) {
-            const mappedPet = mapSupabasePet(data);
-            console.log("Pet found:", mappedPet.name);
-            
-            // Check if the current user is the owner
-            if (mappedPet.ownerId !== user.id) {
-              console.log("User is not the pet owner");
-              toast.error("You don't have permission to view this QR code");
-              navigate("/dashboard");
-              return;
-            }
-            
-            setPet(mappedPet);
-          } else {
-            console.log("Pet not found for id:", petId);
-            toast.error("Pet not found");
-            navigate("/dashboard");
-          }
-        } catch (err) {
-          console.error("Error in pet fetch:", err);
-          toast.error("Failed to load pet data");
-        } finally {
-          setIsLoading(false);
+    const fetchPet = async () => {
+      try {
+        console.log("Fetching pet data for:", petId);
+        const { data, error } = await supabase
+          .from('pets')
+          .select('*')
+          .eq('id', petId)
+          .maybeSingle();
+        
+        if (error) {
+          console.error("Error fetching pet:", error);
+          toast.error("Error loading pet data");
+          navigate("/");
+          return;
         }
-      };
-      
-      fetchPet();
-    }
-  }, [petId, user, loading, navigate]);
+        
+        if (data) {
+          const mappedPet = mapSupabasePet(data);
+          console.log("Pet found:", mappedPet.name);
+          setPet(mappedPet);
+          
+          // Check if the current user is the owner
+          if (user && mappedPet.ownerId === user.id) {
+            setIsOwner(true);
+          }
+        } else {
+          console.log("Pet not found for id:", petId);
+          toast.error("Pet not found");
+          navigate("/");
+        }
+      } catch (err) {
+        console.error("Error in pet fetch:", err);
+        toast.error("Failed to load pet data");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchPet();
+  }, [petId, user, navigate]);
   
   if (loading || isLoading) {
     return (
@@ -95,7 +84,7 @@ const QRCodePage = () => {
           <h2 className="text-2xl font-bold mb-4">Pet Not Found</h2>
           <p className="mb-6">The pet profile you're looking for doesn't exist.</p>
           <Button asChild>
-            <Link to="/dashboard">Return to Dashboard</Link>
+            <Link to="/">Return Home</Link>
           </Button>
         </div>
       </Layout>
@@ -108,7 +97,7 @@ const QRCodePage = () => {
         <div className="mb-6">
           <h1 className="text-3xl font-bold text-center mb-2">{pet.name}'s QR Code</h1>
           <p className="text-gray-600 text-center mb-8">
-            Print this QR code and attach it to {pet.name}'s collar
+            {isOwner ? `Print this QR code and attach it to ${pet.name}'s collar` : `QR code for ${pet.name}`}
           </p>
         </div>
         
@@ -116,25 +105,33 @@ const QRCodePage = () => {
           <QRCodeGenerator data={pet.id} petName={pet.name} />
         </div>
         
-        <div className="mb-8">
-          <div className="bg-primary/10 p-6 rounded-lg">
-            <h3 className="font-semibold text-lg mb-2">Instructions:</h3>
-            <ol className="list-decimal list-inside space-y-2 text-gray-700">
-              <li>Download and print this QR code</li>
-              <li>Cut it out and laminate it or place it in a waterproof holder</li>
-              <li>Attach it securely to {pet.name}'s collar</li>
-              <li>Test the code by scanning it with your phone's camera</li>
-            </ol>
+        {isOwner && (
+          <div className="mb-8">
+            <div className="bg-primary/10 p-6 rounded-lg">
+              <h3 className="font-semibold text-lg mb-2">Instructions:</h3>
+              <ol className="list-decimal list-inside space-y-2 text-gray-700">
+                <li>Download and print this QR code</li>
+                <li>Cut it out and laminate it or place it in a waterproof holder</li>
+                <li>Attach it securely to {pet.name}'s collar</li>
+                <li>Test the code by scanning it with your phone's camera</li>
+              </ol>
+            </div>
           </div>
-        </div>
+        )}
         
         <div className="flex justify-between">
           <Button asChild variant="outline">
             <Link to={`/pet/${pet.id}`}>Back to {pet.name}'s Profile</Link>
           </Button>
-          <Button asChild>
-            <Link to="/dashboard">Dashboard</Link>
-          </Button>
+          {user ? (
+            <Button asChild>
+              <Link to="/dashboard">Dashboard</Link>
+            </Button>
+          ) : (
+            <Button asChild>
+              <Link to="/">Home</Link>
+            </Button>
+          )}
         </div>
       </div>
     </Layout>
