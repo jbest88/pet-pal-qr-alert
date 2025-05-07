@@ -102,7 +102,7 @@ const Dashboard = () => {
         <div className="mb-8">
           <Button asChild className={`${glass} hover:bg-white/40 transition-all duration-300`}>
             <Link to="/add-pet">
-              <PlusCircle className="h-4 w-4 mr-2" /> Add New Pet
+              <PlusCircle className="text-black h-4 w-4 mr-2" /> Add New Pet
             </Link>
           </Button>
         </div>
