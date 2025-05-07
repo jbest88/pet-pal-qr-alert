@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import QRCode from "qrcode";
 import { Button } from "@/components/ui/button";
@@ -171,10 +172,18 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({ data: petId, petName,
       return;
     }
     
-    const fullUrl = buildQRCodeUrl(slug);
-    console.log("🧪 Testing QR code with URL:", fullUrl);
-    window.open(fullUrl, '_blank');
-    toast.success("Opening scan page in new tab for testing");
+    try {
+      // Testing the QR code by directly opening the URL it points to
+      const fullUrl = buildQRCodeUrl(slug);
+      console.log("🧪 Testing QR code with URL:", fullUrl);
+      
+      // Use window.open to open in a new tab
+      window.open(fullUrl, '_blank', 'noopener,noreferrer');
+      toast.success("Opening QR redirect page in new tab for testing");
+    } catch (err) {
+      console.error("❌ Error testing QR code:", err);
+      toast.error("Failed to test QR code");
+    }
   };
 
   return (

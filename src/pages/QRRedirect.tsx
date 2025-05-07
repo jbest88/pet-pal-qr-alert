@@ -12,13 +12,14 @@ const QRRedirect = () => {
   useEffect(() => {
     const redirectToScan = async () => {
       if (!slug) {
+        console.error("No slug parameter found in URL");
         toast.error("Invalid QR code");
         navigate("/");
         return;
       }
 
       try {
-        console.log(`Looking up QR code with slug: ${slug}`);
+        console.log(`QR Redirect: Looking up QR code with slug: ${slug}`);
         
         // First, let's verify the slug exists in our database
         const { data, error } = await supabase
@@ -43,7 +44,7 @@ const QRRedirect = () => {
           return;
         }
 
-        console.log(`Found pet ID for QR slug ${slug}: ${data.pet_id}`);
+        console.log(`QR Redirect: Found pet ID for QR slug ${slug}: ${data.pet_id}`);
 
         // Redirect to pet profile page
         navigate(`/pet/${data.pet_id}`);
