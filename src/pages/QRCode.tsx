@@ -18,9 +18,14 @@ const QRCodePage = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // First check authentication
+    // First check authentication - this page requires login
     if (!loading && !user) {
       console.log("User not authenticated, redirecting to login");
+      toast.error("Please sign in to view QR codes");
+      
+      // Remember where the user was trying to go for after login
+      sessionStorage.setItem('redirectAfterLogin', `/qr-code/${petId}`);
+      
       navigate("/login");
       return;
     }
@@ -46,6 +51,15 @@ const QRCodePage = () => {
           if (data) {
             const mappedPet = mapSupabasePet(data);
             console.log("Pet found:", mappedPet.name);
+            
+            // Check if the current user is the owner
+            if (mappedPet.ownerId !== user.id) {
+              console.log("User is not the pet owner");
+              toast.error("You don't have permission to view this QR code");
+              navigate("/dashboard");
+              return;
+            }
+            
             setPet(mappedPet);
           } else {
             console.log("Pet not found for id:", petId);

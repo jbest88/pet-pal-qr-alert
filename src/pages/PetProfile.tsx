@@ -195,6 +195,20 @@ const PetProfile = () => {
                 </Link>
               </Button>
             )}
+            {!user && (
+              <>
+                <Button asChild className={`${glass} text-black`}>
+                  <Link to={`/scan/${pet.id}`}>
+                    I've Found This Pet
+                  </Link>
+                </Button>
+                <Button asChild variant="outline" className={`${glass} text-black`}>
+                  <Link to="/login">
+                    Sign In
+                  </Link>
+                </Button>
+              </>
+            )}
           </div>
         </div>
         
@@ -220,7 +234,7 @@ const PetProfile = () => {
           </div>
           
           <div>
-            {/* QR Code Status */}
+            {/* QR Code Status - Show for both owner and anonymous users */}
             <QRCodeStatus petId={pet.id} />
 
             {!user && (
