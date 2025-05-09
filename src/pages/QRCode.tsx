@@ -46,8 +46,8 @@ const QRCodePage = () => {
           const mappedPet = mapSupabasePet(data);
           setPet(mappedPet);
           
-          // Check if current user is the owner
-          setIsOwner(user && user.id === mappedPet.owner_id);
+          // Check if current user is the owner - Fixed property name from owner_id to ownerId
+          setIsOwner(user && user.id === mappedPet.ownerId);
         } else {
           toast.error("Pet not found. The QR code link might be invalid or the pet profile was removed.");
           setPet(null);
