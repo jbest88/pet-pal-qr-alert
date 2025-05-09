@@ -2,13 +2,15 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PawPrint, QrCode, Bell, Check } from "lucide-react";
+import { PawPrint, QrCode, Bell, Check, Sparkles } from "lucide-react";
 import Layout from "@/components/Layout";
 import { useAuth } from "@/contexts/AuthContext";
+import { useSubscription } from "@/contexts/SubscriptionContext";
 import { useNavigate } from "react-router-dom";
 
 const Index = () => {
   const { user } = useAuth();
+  const { isSubscribed } = useSubscription();
   const navigate = useNavigate();
   
   const features = [
@@ -104,6 +106,74 @@ const Index = () => {
         </div>
       </section>
 
+      {/* PetPal+ Section */}
+      <section className="py-16 bg-gradient-to-r from-amber-50 to-amber-100">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-center mb-8">
+            <Sparkles className="h-8 w-8 text-amber-500 mr-2" />
+            <h2 className="text-3xl font-bold text-center">
+              Upgrade to PetPal+
+            </h2>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            <div>
+              <h3 className="text-xl font-semibold mb-4">Premium Features</h3>
+              <ul className="space-y-3">
+                <li className="flex items-start">
+                  <Check className="h-5 w-5 text-green-500 mr-2 mt-0.5" />
+                  <span>Priority customer support with faster response times</span>
+                </li>
+                <li className="flex items-start">
+                  <Check className="h-5 w-5 text-green-500 mr-2 mt-0.5" />
+                  <span>Advanced location tracking for better pet recovery</span>
+                </li>
+                <li className="flex items-start">
+                  <Check className="h-5 w-5 text-green-500 mr-2 mt-0.5" />
+                  <span>Premium pet profile templates for more detailed information</span>
+                </li>
+                <li className="flex items-start">
+                  <Check className="h-5 w-5 text-green-500 mr-2 mt-0.5" />
+                  <span>Early access to all new features as they're developed</span>
+                </li>
+              </ul>
+              <div className="mt-6">
+                <Button asChild>
+                  <Link to="/subscription">
+                    {isSubscribed ? "Manage Subscription" : "Upgrade Now"}
+                  </Link>
+                </Button>
+              </div>
+            </div>
+            <div className="bg-white p-6 rounded-lg shadow-md">
+              <h3 className="text-xl font-semibold mb-4">Flexible Plans</h3>
+              <div className="space-y-4">
+                <div className="flex justify-between items-center pb-4 border-b">
+                  <div>
+                    <p className="font-medium">Monthly Subscription</p>
+                    <p className="text-sm text-gray-600">Flexible monthly billing</p>
+                  </div>
+                  <p className="text-xl font-bold">$4.99</p>
+                </div>
+                <div className="flex justify-between items-center pb-4 border-b">
+                  <div>
+                    <p className="font-medium">Annual Subscription</p>
+                    <p className="text-sm text-gray-600">Save 17% with yearly billing</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xl font-bold">$49.99</p>
+                    <p className="text-xs text-green-600">Save $9.89/year</p>
+                  </div>
+                </div>
+                <p className="text-sm text-gray-600 mt-4">
+                  Choose the plan that works best for you. Cancel anytime.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* How It Works Section */}
       <section className="py-16 bg-accent">
         <div className="container mx-auto px-4">
@@ -133,9 +203,18 @@ const Index = () => {
           <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
             Don't wait until your pet goes missing. Create an account now and get your pet's QR code ready.
           </p>
-          <Button size="lg" className="text-lg px-8" onClick={handleGetStarted}>
-            {user ? "Go to Dashboard" : "Create Your Free Account"}
-          </Button>
+          <div className="flex flex-col sm:flex-row justify-center gap-4">
+            <Button size="lg" className="text-lg px-8" onClick={handleGetStarted}>
+              {user ? "Go to Dashboard" : "Create Your Free Account"}
+            </Button>
+            {!isSubscribed && (
+              <Button asChild size="lg" variant="outline" className="text-lg px-8">
+                <Link to="/subscription">
+                  <Sparkles className="mr-2 h-5 w-5" /> Explore PetPal+
+                </Link>
+              </Button>
+            )}
+          </div>
         </div>
       </section>
     </Layout>
