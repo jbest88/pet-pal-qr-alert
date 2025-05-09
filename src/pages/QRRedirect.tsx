@@ -18,6 +18,14 @@ const QRRedirect = () => {
         return;
       }
 
+      // Validate slug format - only allow alphanumeric characters
+      if (!/^[a-zA-Z0-9_-]+$/.test(slug)) {
+        console.error("Invalid slug format:", slug);
+        toast.error("Invalid QR code format");
+        navigate("/");
+        return;
+      }
+
       try {
         console.log(`QR Redirect: Looking up QR code with slug: ${slug}`);
         
