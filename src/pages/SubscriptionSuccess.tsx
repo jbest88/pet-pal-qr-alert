@@ -8,47 +8,39 @@ import { useSubscription } from "@/contexts/SubscriptionContext";
 import { toast } from "sonner";
 
 const SubscriptionSuccess = () => {
-  const { checkSubscription } = useSubscription();
+  const { checkDonationStatus } = useSubscription();
   
   useEffect(() => {
-    // Update subscription status when the component mounts
-    const updateSubscription = async () => {
+    // Update donation status when the component mounts
+    const updateDonationStatus = async () => {
       try {
-        await checkSubscription();
-        toast.success("Subscription was successful!");
+        await checkDonationStatus();
+        toast.success("Thank you for your donation!");
       } catch (error) {
-        console.error("Failed to update subscription status:", error);
+        console.error("Failed to update donation status:", error);
       }
     };
     
-    updateSubscription();
-    
-    // Set up auto-refresh interval
-    const interval = setInterval(() => {
-      checkSubscription();
-    }, 5000); // Check every 5 seconds initially
-    
-    // Clear interval on component unmount
-    return () => clearInterval(interval);
-  }, [checkSubscription]);
+    updateDonationStatus();
+  }, [checkDonationStatus]);
 
   return (
     <Layout>
       <div className="container mx-auto px-4 py-12 max-w-lg text-center">
         <CheckCircle className="h-20 w-20 text-green-500 mx-auto mb-4" />
-        <h1 className="text-3xl font-bold mb-4">Thank You for Subscribing!</h1>
+        <h1 className="text-3xl font-bold mb-4">Thank You for Your Donation!</h1>
         <p className="text-gray-600 mb-6">
-          Your subscription to PetPal+ has been processed successfully. You now have access to all premium features to help keep your pets safe and secure.
+          Your generosity helps us protect more pets and ensure they find their way home safely.
         </p>
         <p className="text-gray-700 mb-8">
-          We've refreshed your subscription status automatically. You can now enjoy all the benefits of PetPal+.
+          We've received your donation and greatly appreciate your support of our mission.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Button asChild>
             <Link to="/dashboard">Go to Dashboard</Link>
           </Button>
           <Button asChild variant="outline">
-            <Link to="/subscription">View Subscription Details</Link>
+            <Link to="/subscription">Back to Donations</Link>
           </Button>
         </div>
       </div>

@@ -4,123 +4,98 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-interface SubscriptionState {
-  isSubscribed: boolean;
-  tier: string | null;
-  expiresAt: string | null;
+interface DonationState {
+  hasDonated: boolean;
+  donationAmount: number | null;
+  donationDate: string | null;
   isLoading: boolean;
-  checkSubscription: () => Promise<void>;
-  createCheckout: (tier: "monthly" | "yearly") => Promise<string | null>;
-  openCustomerPortal: () => Promise<string | null>;
+  checkDonationStatus: () => Promise<void>;
+  createDonation: (amount: number) => Promise<string | null>;
 }
 
-export const SubscriptionContext = createContext<SubscriptionState | undefined>(undefined);
+export const SubscriptionContext = createContext<DonationState | undefined>(undefined);
 
 export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user } = useAuth();
-  const [isSubscribed, setIsSubscribed] = useState(false);
-  const [tier, setTier] = useState<string | null>(null);
-  const [expiresAt, setExpiresAt] = useState<string | null>(null);
+  const [hasDonated, setHasDonated] = useState(false);
+  const [donationAmount, setDonationAmount] = useState<number | null>(null);
+  const [donationDate, setDonationDate] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const checkSubscription = async () => {
+  const checkDonationStatus = async () => {
     if (!user) {
-      setIsSubscribed(false);
-      setTier(null);
-      setExpiresAt(null);
+      setHasDonated(false);
+      setDonationAmount(null);
+      setDonationDate(null);
       setIsLoading(false);
       return;
     }
 
     try {
       setIsLoading(true);
-      console.log("Checking subscription status...");
+      console.log("Checking donation status...");
       
-      const { data, error } = await supabase.functions.invoke("check-subscription");
+      const { data, error } = await supabase.functions.invoke("check-donation");
       
       if (error) {
-        console.error("Error checking subscription:", error);
-        toast.error("Failed to check subscription status");
+        console.error("Error checking donation status:", error);
+        toast.error("Failed to check donation status");
         return;
       }
       
-      console.log("Subscription check response:", data);
+      console.log("Donation check response:", data);
       
-      setIsSubscribed(data.subscribed || false);
-      setTier(data.subscription_tier);
-      setExpiresAt(data.subscription_end);
+      setHasDonated(data.hasDonated || false);
+      setDonationAmount(data.donationAmount);
+      setDonationDate(data.donationDate);
     } catch (error) {
-      console.error("Error checking subscription:", error);
-      toast.error("Failed to check subscription status");
+      console.error("Error checking donation status:", error);
+      toast.error("Failed to check donation status");
     } finally {
       setIsLoading(false);
     }
   };
 
-  const createCheckout = async (tier: "monthly" | "yearly"): Promise<string | null> => {
+  const createDonation = async (amount: number): Promise<string | null> => {
     if (!user) {
-      toast.error("You must be logged in to subscribe");
+      toast.error("You must be logged in to make a donation");
       return null;
     }
 
     try {
-      const { data, error } = await supabase.functions.invoke("create-checkout", {
-        body: { tier }
+      const { data, error } = await supabase.functions.invoke("create-donation", {
+        body: { amount }
       });
 
       if (error) {
-        console.error("Error creating checkout session:", error);
-        toast.error("Failed to create checkout session");
+        console.error("Error creating donation session:", error);
+        toast.error("Failed to create donation session");
         return null;
       }
 
       return data?.url || null;
     } catch (error) {
-      console.error("Error creating checkout:", error);
-      toast.error("Failed to create checkout session");
-      return null;
-    }
-  };
-
-  const openCustomerPortal = async (): Promise<string | null> => {
-    if (!user) {
-      toast.error("You must be logged in to manage your subscription");
-      return null;
-    }
-
-    try {
-      const { data, error } = await supabase.functions.invoke("customer-portal");
-
-      if (error) {
-        console.error("Error opening customer portal:", error);
-        toast.error("Failed to open customer portal");
-        return null;
-      }
-
-      return data?.url || null;
-    } catch (error) {
-      console.error("Error opening customer portal:", error);
-      toast.error("Failed to open customer portal");
+      console.error("Error creating donation:", error);
+      toast.error("Failed to create donation session");
       return null;
     }
   };
 
   useEffect(() => {
     if (user) {
-      checkSubscription();
+      checkDonationStatus();
     }
   }, [user]);
 
   return (
     <SubscriptionContext.Provider
       value={{
-        isSubscribed,
-        tier,
-        expiresAt,
+        hasDonated,
+        donationAmount,
+        donationDate,
         isLoading,
-        checkSubscription,
-        createCheckout,
-        openCustomerPortal,
+        checkDonationStatus,
+        createDonation
       }}
     >
       {children}

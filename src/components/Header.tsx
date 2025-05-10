@@ -3,8 +3,6 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/contexts/SubscriptionContext";
-import { Moon, Sun } from "lucide-react";
-import { useTheme } from "@/components/ui/theme-provider";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
@@ -13,7 +11,7 @@ import HeaderProfileLink from "@/components/HeaderProfileLink";
 
 const Header = () => {
   const { user, logout } = useAuth();
-  const { isSubscribed } = useSubscription();
+  const { hasDonated } = useSubscription();
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -55,7 +53,7 @@ const Header = () => {
                   Profile
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate("/subscription")}>
-                  Subscription
+                  Donate
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => logout()}>Logout</DropdownMenuItem>
               </DropdownMenuContent>
