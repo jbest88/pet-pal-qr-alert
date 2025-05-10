@@ -43,7 +43,17 @@ export default function Profile() {
           .single();
 
         if (error) throw error;
-        setProfileData(data as ProfileData);
+        
+        // Safely cast data to ProfileData with correct types
+        setProfileData({
+          name: data.name,
+          email: data.email,
+          phone: data.phone,
+          social_facebook: data.social_facebook || null,
+          social_instagram: data.social_instagram || null,
+          social_twitter: data.social_twitter || null,
+          social_snapchat: data.social_snapchat || null
+        });
       } catch (error) {
         console.error("Error fetching profile:", error);
       } finally {

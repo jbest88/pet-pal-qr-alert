@@ -40,14 +40,22 @@ export default function SocialShareButtons({ pet }: SocialShareButtonsProps) {
           
         if (error) throw error;
         
+        // Type-safe access to data properties
         setSocialAccounts({
-          facebook: data.social_facebook,
-          instagram: data.social_instagram,
-          twitter: data.social_twitter,
-          snapchat: data.social_snapchat
+          facebook: data?.social_facebook || null,
+          instagram: data?.social_instagram || null,
+          twitter: data?.social_twitter || null,
+          snapchat: data?.social_snapchat || null
         });
       } catch (error) {
         console.error('Error loading social accounts:', error);
+        // Initialize with null values in case of error
+        setSocialAccounts({
+          facebook: null,
+          instagram: null,
+          twitter: null,
+          snapchat: null
+        });
       } finally {
         setIsLoading(false);
       }

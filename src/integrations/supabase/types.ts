@@ -66,6 +66,10 @@ export type Database = {
           id: string
           name: string
           phone: string | null
+          social_facebook: string | null
+          social_instagram: string | null
+          social_snapchat: string | null
+          social_twitter: string | null
         }
         Insert: {
           created_at?: string
@@ -73,6 +77,10 @@ export type Database = {
           id: string
           name: string
           phone?: string | null
+          social_facebook?: string | null
+          social_instagram?: string | null
+          social_snapchat?: string | null
+          social_twitter?: string | null
         }
         Update: {
           created_at?: string
@@ -80,6 +88,10 @@ export type Database = {
           id?: string
           name?: string
           phone?: string | null
+          social_facebook?: string | null
+          social_instagram?: string | null
+          social_snapchat?: string | null
+          social_twitter?: string | null
         }
         Relationships: []
       }
