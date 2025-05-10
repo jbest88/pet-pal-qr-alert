@@ -17,6 +17,7 @@ import PetInfo from "@/components/pet/PetInfo";
 import QRCodeStatus from "@/components/pet/QRCodeStatus";
 import ScanHistory from "@/components/pet/ScanHistory";
 import PetStatusDialogs from "@/components/pet/PetStatusDialogs";
+import SocialShareButtons from "@/components/pet/SocialShareButtons";
 
 const PetProfile = () => {
   const { petId } = useParams<{ petId: string }>();
@@ -214,6 +215,13 @@ const PetProfile = () => {
         
         {/* Lost Pet Information */}
         <LostPetCard pet={pet} />
+        
+        {/* Social Share Buttons - Add for lost pets */}
+        {pet.isLost && isOwner && (
+          <div className="my-4">
+            <SocialShareButtons pet={pet} />
+          </div>
+        )}
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2">

@@ -25,6 +25,7 @@ import QRRedirect from "./pages/QRRedirect";
 import Subscription from "./pages/Subscription";
 import SubscriptionSuccess from "./pages/SubscriptionSuccess";
 import SubscriptionCanceled from "./pages/SubscriptionCanceled";
+import Profile from "./pages/Profile";
 
 const queryClient = new QueryClient();
 
@@ -51,6 +52,7 @@ const App = () => (
               <Route path="/subscription" element={<Subscription />} />
               <Route path="/subscription/success" element={<SubscriptionSuccess />} />
               <Route path="/subscription/canceled" element={<SubscriptionCanceled />} />
+              <Route path="/profile" element={<Profile />} />
               <Route path="/how-it-works" element={<HowItWorks />} />
               <Route path="/privacy" element={<Privacy />} />
               <Route path="*" element={<NotFound />} />
