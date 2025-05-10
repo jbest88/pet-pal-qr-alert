@@ -16,9 +16,6 @@ import { useTheme } from "@/components/ui/theme-provider"
 export function ModeToggle() {
   const { theme, setTheme } = useTheme();
   
-  // Default to light theme if theme is undefined
-  const currentTheme = theme || "light";
-  
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>

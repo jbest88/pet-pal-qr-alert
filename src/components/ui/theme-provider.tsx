@@ -3,35 +3,47 @@
 
 import * as React from "react"
 import { createContext, useContext, useEffect, useState } from "react"
-import { ThemeProvider as NextThemesProvider } from "next-themes"
-import { type ThemeProviderProps } from "next-themes/dist/types"
 
-// Create our own Theme Context to avoid the direct dependency on next-themes internals
+// Define the theme context type
 type ThemeContextType = {
-  theme: string | undefined;
+  theme: string;
   setTheme: (theme: string) => void;
   themes: string[];
 }
 
+// Create and initialize the context with default values
 const ThemeContext = createContext<ThemeContextType>({
   theme: "light",
   setTheme: () => null,
   themes: ["light", "dark", "system"]
 });
 
-export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
-  const [mounted, setMounted] = useState(false);
-  const [theme, setTheme] = useState<string | undefined>(props.defaultTheme);
+interface ThemeProviderProps {
+  children: React.ReactNode;
+  defaultTheme?: string;
+  storageKey?: string;
+}
 
-  // Handle theme changes from next-themes
+export function ThemeProvider({
+  children,
+  defaultTheme = "light",
+  storageKey = "theme",
+}: ThemeProviderProps) {
+  const [theme, setTheme] = useState<string>(defaultTheme);
+  
+  // Handle theme changes
   const handleThemeChange = (newTheme: string) => {
     setTheme(newTheme);
+    
     // Store the theme in localStorage
     if (typeof window !== "undefined") {
-      localStorage.setItem(props.storageKey || "theme", newTheme);
+      localStorage.setItem(storageKey, newTheme);
     }
+    
     // Apply the theme to the document
-    if (newTheme === "dark") {
+    if (newTheme === "dark" || 
+        (newTheme === "system" && 
+         window.matchMedia("(prefers-color-scheme: dark)").matches)) {
       document.documentElement.classList.add("dark");
     } else {
       document.documentElement.classList.remove("dark");
@@ -42,30 +54,23 @@ export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
   useEffect(() => {
     // Get the theme from localStorage or use the default
     const storedTheme = typeof window !== "undefined" 
-      ? localStorage.getItem(props.storageKey || "theme") 
+      ? localStorage.getItem(storageKey) 
       : null;
     
-    const initialTheme = storedTheme || props.defaultTheme || "light";
-    setTheme(initialTheme);
+    const initialTheme = storedTheme || defaultTheme;
     
     // Apply the initial theme
-    if (initialTheme === "dark" || 
-        (initialTheme === "system" && 
-         window.matchMedia("(prefers-color-scheme: dark)").matches)) {
-      document.documentElement.classList.add("dark");
-    }
-    
-    setMounted(true);
-  }, [props.defaultTheme, props.storageKey]);
+    handleThemeChange(initialTheme);
+  }, [defaultTheme, storageKey]);
 
-  const contextValue = {
+  const value = {
     theme,
     setTheme: handleThemeChange,
     themes: ["light", "dark", "system"]
   };
 
   return (
-    <ThemeContext.Provider value={contextValue}>
+    <ThemeContext.Provider value={value}>
       {children}
     </ThemeContext.Provider>
   );
