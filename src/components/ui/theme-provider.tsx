@@ -10,14 +10,16 @@ export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
 }
 
 export const useTheme = () => {
-  // Add proper type assertion for the context values
-  const context = React.useContext((NextThemesProvider as any)._context) || { 
-    theme: undefined, 
-    setTheme: (theme: string) => {} 
-  };
-  
-  return { 
-    theme: context.theme as string | undefined, 
-    setTheme: context.setTheme as (theme: string) => void 
-  };
-};
+  try {
+    // Import the context directly from next-themes
+    const { useTheme } = require("next-themes")
+    return useTheme()
+  } catch (error) {
+    // Fallback implementation if direct import fails
+    return {
+      theme: "light" as string | undefined,
+      setTheme: (theme: string) => console.warn("Theme context not available"),
+      themes: ["light", "dark", "system"]
+    }
+  }
+}
