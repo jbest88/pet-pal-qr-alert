@@ -1,16 +1,13 @@
 
 import { useAuth } from "@/contexts/AuthContext";
-import { useSubscription } from "@/contexts/SubscriptionContext";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { PawPrint, Menu, X, LogIn, AlertTriangle, Sparkles } from "lucide-react";
+import { PawPrint, Menu, X, LogIn, AlertTriangle } from "lucide-react";
 import { useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Badge } from "@/components/ui/badge";
 
 const Header = () => {
   const { user, logout } = useAuth();
-  const { isSubscribed, tier } = useSubscription();
   const isMobile = useIsMobile();
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -32,21 +29,6 @@ const Header = () => {
         <>
           <Link to="/dashboard" onClick={closeMenu}>
             <Button variant="ghost">Dashboard</Button>
-          </Link>
-          <Link to="/subscription" onClick={closeMenu}>
-            <Button variant="ghost" className="flex items-center">
-              <Sparkles className="mr-2 h-4 w-4 text-amber-500" />
-              {isSubscribed ? (
-                <div className="flex items-center">
-                  PetPal+
-                  <Badge variant="outline" className="ml-2 bg-green-100 text-green-700 border-green-300">
-                    {tier === 'yearly' ? 'Yearly' : 'Monthly'}
-                  </Badge>
-                </div>
-              ) : (
-                "Upgrade to PetPal+"
-              )}
-            </Button>
           </Link>
           <Button onClick={() => { logout(); closeMenu(); }} variant="ghost">
             Logout
