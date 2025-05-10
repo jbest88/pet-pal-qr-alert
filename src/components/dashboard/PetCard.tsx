@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Pencil, Trash2, Eye, QrCode } from "lucide-react";
+import { Pencil, Trash2, Eye, QrCode, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -21,7 +21,7 @@ const PetCard = ({ pet, onDeleteClick }: PetCardProps) => {
   };
 
   return (
-    <Card key={pet.id} className={`overflow-hidden ${glass} transition-all duration-300 hover:shadow-xl`}>
+    <Card key={pet.id} className={`overflow-hidden ${glass} transition-all duration-300 hover:shadow-xl ${pet.isLost ? 'border-amber-500 border-2' : ''}`}>
       {pet.imageUrl ? (
         <div className="aspect-video w-full">
           <img 
@@ -37,8 +37,16 @@ const PetCard = ({ pet, onDeleteClick }: PetCardProps) => {
           </Avatar>
         </div>
       )}
-      <CardHeader className="bg-primary/10 backdrop-blur-sm">
-        <CardTitle>{pet.name}</CardTitle>
+      <CardHeader className={`${pet.isLost ? 'bg-amber-50/80' : 'bg-primary/10'} backdrop-blur-sm`}>
+        <CardTitle className="flex items-center justify-between">
+          {pet.name}
+          {pet.isLost && (
+            <span className="flex items-center gap-1 text-sm font-normal bg-amber-100/80 text-amber-600 px-2 py-1 rounded-full">
+              <AlertTriangle className="h-3 w-3" />
+              Lost
+            </span>
+          )}
+        </CardTitle>
       </CardHeader>
       <CardContent className="pt-6">
         <p><strong>Type:</strong> {pet.type.charAt(0).toUpperCase() + pet.type.slice(1)}</p>
@@ -46,6 +54,11 @@ const PetCard = ({ pet, onDeleteClick }: PetCardProps) => {
         {pet.description && (
           <p className="mt-2 text-sm text-gray-600 line-clamp-2">
             {pet.description}
+          </p>
+        )}
+        {pet.isLost && pet.lostDate && (
+          <p className="mt-2 text-sm text-amber-600">
+            <strong>Lost since:</strong> {new Date(pet.lostDate).toLocaleDateString()}
           </p>
         )}
       </CardContent>
