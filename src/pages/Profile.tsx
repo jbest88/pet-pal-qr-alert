@@ -5,11 +5,12 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import Layout from "@/components/Layout";
 import SocialMediaForm from "@/components/profile/SocialMediaForm";
+import PromoComponent from "@/components/PromoComponent";
 import { glass } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { User, ArrowLeft } from "lucide-react";
+import { User, ArrowLeft, Badge, Gift } from "lucide-react";
 
 interface ProfileData {
   name: string;
@@ -93,6 +94,26 @@ export default function Profile() {
               Back to Dashboard
             </Button>
             <h1 className="text-2xl font-bold">Your Profile</h1>
+          </div>
+
+          {/* Promo Section */}
+          <div className="mb-8 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <PromoComponent 
+              title="Upgrade to Premium"
+              description="Get unlimited pet profiles, priority support, and advanced features."
+              linkText="View Plans"
+              linkUrl="/subscription"
+              variant="featured"
+              icon={<Badge className="h-5 w-5" />}
+            />
+            <PromoComponent 
+              title="Refer a Friend"
+              description="Refer friends and get a free month of Premium for each successful referral."
+              linkText="Get Referral Link"
+              linkUrl="#"
+              variant="default"
+              icon={<Gift className="h-5 w-5" />}
+            />
           </div>
 
           <div className={`p-6 rounded-lg mb-8 ${glass}`}>

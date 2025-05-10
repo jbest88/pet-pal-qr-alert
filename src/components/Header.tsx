@@ -1,81 +1,71 @@
-
-import { useAuth } from "@/contexts/AuthContext";
-import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { PawPrint, Menu, X, LogIn, AlertTriangle } from "lucide-react";
 import { useState } from "react";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { useSubscription } from "@/contexts/SubscriptionContext";
+import { Moon, Sun } from "lucide-react";
+import { useTheme } from "@/components/ui/theme-provider";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import { ModeToggle } from "@/components/ui/mode-toggle";
+import HeaderProfileLink from "@/components/HeaderProfileLink";
 
 const Header = () => {
   const { user, logout } = useAuth();
-  const isMobile = useIsMobile();
-  const [menuOpen, setMenuOpen] = useState(false);
+  const { subscription } = useSubscription();
+  const navigate = useNavigate();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  const toggleMenu = () => setMenuOpen(!menuOpen);
-  const closeMenu = () => setMenuOpen(false);
-
-  const NavLinks = () => (
-    <>
-      <Link to="/" onClick={closeMenu}>
-        <Button variant="ghost">Home</Button>
-      </Link>
-      <Link to="/lost-pets" onClick={closeMenu}>
-        <Button variant="ghost" className="flex items-center">
-          <AlertTriangle className="mr-2 h-4 w-4 text-amber-500" />
-          Lost Pets
-        </Button>
-      </Link>
-      {user ? (
-        <>
-          <Link to="/dashboard" onClick={closeMenu}>
-            <Button variant="ghost">Dashboard</Button>
-          </Link>
-          <Button onClick={() => { logout(); closeMenu(); }} variant="ghost">
-            Logout
-          </Button>
-        </>
-      ) : (
-        <>
-          <Link to="/login" onClick={closeMenu}>
-            <Button variant="ghost">
-              <LogIn className="mr-2 h-4 w-4" /> Login
-            </Button>
-          </Link>
-          <Link to="/register" onClick={closeMenu}>
-            <Button variant="secondary">Register</Button>
-          </Link>
-        </>
-      )}
-    </>
-  );
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
 
   return (
-    <header className="bg-white shadow-sm">
-      <div className="container mx-auto px-4 py-3 flex justify-between items-center">
-        <Link to="/" className="flex items-center gap-2" onClick={closeMenu}>
-          <PawPrint className="h-6 w-6 text-primary" />
-          <span className="text-xl font-bold text-gray-800">PetPal</span>
+    <header className="bg-background border-b sticky top-0 z-50">
+      <div className="container flex items-center justify-between py-4">
+        <Link to="/" className="font-bold text-2xl">
+          PetAlert
         </Link>
 
-        {isMobile ? (
-          <>
-            <Button variant="ghost" size="icon" onClick={toggleMenu} aria-label="Toggle menu">
-              {menuOpen ? <X /> : <Menu />}
-            </Button>
-            
-            {menuOpen && (
-              <div className="fixed inset-0 z-50 bg-white pt-16">
-                <div className="container mx-auto px-4 flex flex-col space-y-4">
-                  <NavLinks />
-                </div>
-              </div>
-            )}
-          </>
-        ) : (
-          <nav className="flex items-center space-x-2">
-            <NavLinks />
-          </nav>
-        )}
+        <nav className="hidden md:flex items-center space-x-6">
+          <Link to="/how-it-works">How it Works</Link>
+          <Link to="/lost-pets">Lost Pets</Link>
+          {user && (
+            <Link to="/dashboard">Dashboard</Link>
+          )}
+        </nav>
+
+        <div className="flex items-center space-x-4">
+          <ModeToggle />
+          {user ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="h-8 w-8 p-0 rounded-full">
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage src={`https://avatar.vercel.sh/${user.email}.png`} alt={user.name} />
+                    <AvatarFallback>{user.name?.charAt(0).toUpperCase()}</AvatarFallback>
+                  </Avatar>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56" align="end" forceMount>
+                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => navigate("/profile")}>
+                  Profile
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate("/subscription")}>
+                  Subscription
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => logout()}>Logout</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <>
+              <Button variant="outline" onClick={() => navigate("/login")}>Log In</Button>
+              <Button onClick={() => navigate("/register")}>Sign Up</Button>
+            </>
+          )}
+        </div>
       </div>
     </header>
   );
