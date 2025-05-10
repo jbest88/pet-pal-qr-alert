@@ -14,7 +14,7 @@ interface SubscriptionState {
   openCustomerPortal: () => Promise<string | null>;
 }
 
-const SubscriptionContext = createContext<SubscriptionState | undefined>(undefined);
+export const SubscriptionContext = createContext<SubscriptionState | undefined>(undefined);
 
 export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user } = useAuth();
