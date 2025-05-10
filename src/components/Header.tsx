@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -12,7 +13,7 @@ import HeaderProfileLink from "@/components/HeaderProfileLink";
 
 const Header = () => {
   const { user, logout } = useAuth();
-  const { subscription } = useSubscription();
+  const { isSubscribed } = useSubscription();
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
