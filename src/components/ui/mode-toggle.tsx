@@ -14,12 +14,11 @@ import {
 import { useTheme } from "@/components/ui/theme-provider"
 
 export function ModeToggle() {
-  const { theme, setTheme } = useTheme()
+  const { theme, setTheme } = useTheme();
   
-  // Ensure we have valid values even if context isn't fully initialized
-  const currentTheme = theme || "light"
-  const changeTheme = setTheme || ((t: string) => console.warn("Theme setter not available"))
-
+  // Default to light theme if theme is undefined
+  const currentTheme = theme || "light";
+  
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -30,13 +29,13 @@ export function ModeToggle() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => changeTheme("light")}>
+        <DropdownMenuItem onClick={() => setTheme("light")}>
           Light
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => changeTheme("dark")}>
+        <DropdownMenuItem onClick={() => setTheme("dark")}>
           Dark
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => changeTheme("system")}>
+        <DropdownMenuItem onClick={() => setTheme("system")}>
           System
         </DropdownMenuItem>
       </DropdownMenuContent>
