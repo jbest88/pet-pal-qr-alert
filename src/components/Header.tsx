@@ -52,9 +52,6 @@ const Header = () => {
                 <DropdownMenuItem onClick={() => navigate("/profile")}>
                   Profile
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/subscription")}>
-                  Donate
-                </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => logout()}>Logout</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
